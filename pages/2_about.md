@@ -8,7 +8,7 @@ permalink: /about/
 * content
 {:toc}
 
-## About the site
+## 关于这本博客
 This is a personal website of LiXizhi, created with github and jekyll. 
 Create your own website is as easy as clone or fork a [template](https://github.com/LiXizhi/lixizhi.github.io) on github, and [commit](http://jekyllrb.com/docs/posts/) to `_posts` folder. 
 

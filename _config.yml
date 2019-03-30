@@ -32,3 +32,9 @@ markdown: kramdown
 # highlighter: pygments
 # highlighter: rouge
 # highlighter: false
+
+
+# Sidebar settings
+sidebar: true                           # 是否开启侧边栏.
+sidebar-about-description: "说点装逼的话。。。"
+sidebar-avatar:/img/avatar-by.JPG      # 你的个人头像
