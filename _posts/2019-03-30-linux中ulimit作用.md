@@ -26,7 +26,7 @@ CPU占用时间限制用户最大可用的进程数限制
 Shell进程所能使用的最大虚拟内存限制
 # 二、用法
 
-## ulimit使用的基本格式为：ulimit [options] [limit]
+__ulimit使用的基本格式为：ulimit [options] [limit]__
 ```shell
 选项 含义
 -a 显示当前系统所有的limit资源信息。 
@@ -66,22 +66,19 @@ file locks                      (-x) unlimited||<
 ```
 其中 "open files (-n) 1024 "是Linux操作系统对一个进程打开的文件句柄数量的限制(也包含打开的SOCKET数量,可影响MySQL的并发连接数目)。
 
-这个值可用ulimit 命令来修改,但ulimit命令修改的数值只对当前登录用户的目前使用环境有效,系统重启或者用户退出后就会失效.
+这个值可用ulimit 命令来修改,但ulimit命令修改的数值只对当前登录用户的目前使用环境有效,`系统重启或者用户退出后就会失效`.
 
  
-
-有时候为了方便起见，也可以将用户资源的限制统一由一个文件来配置，这个文件就是/etc/security/limits.conf，该文件不但能对指定用户的资源进行限制，还能对指定组的资源进行限制。该文件的使用规则如下：
-
+用户资源的限制统一由文件`/etc/security/limits.conf配置，该文件不但能对指定用户的资源进行限制，还能对指定组的资源进行限制。
+该文件的使用规则如下：
+```shell
  <domain> <type> <item> <value> 
-
+```
 其中：
-
 domain表示用户或者组的名字，还可以使用 * 作为通配符，表示任何用户或用户组。
-
-Type 表示限制的类型，可以有两个值，soft 和 hard，分别表示软、硬资源限制。软限制是指限制用户同时打开的文件数目，硬限制是指系统根据硬件资源（主要指内存）计算出来的最多可打开的文件数目。通常软限制低于硬限制；建议不要将软限制和硬限制修改过大。
-
+Type 表示限制的类型，可以有两个值，soft 和 hard，分别表示软、硬资源限制。
+软限制是指限制用户同时打开的文件数目，硬限制是指系统根据硬件资源（主要指内存）计算出来的最多可打开的文件数目。通常软限制低于硬限制；建议不要将软限制和硬限制修改过大。
 item 表示需要限定的资源名称，常用的有nofile、cpu、stack等。分别表示最大打开句柄数、占用的cpu时间、最大的堆栈大小。
-
 value 表示限制各种资源的具体数值。
 
 除了limits.conf文件之外，还有一个`/etc/security/limits.d`目录，可以将资源限制创建一个文件放到这个目录中，默认系统会首先去读取这个目录下的所有文件，然后才去读取limits.conf文件。所有资源限制设置完成后，退出shell终端，再次登录shell终端后，ulimit设置即可自动生效。
@@ -92,18 +89,20 @@ value 表示限制各种资源的具体数值。
 ulimit -n 4096 将每个进程可以打开的文件数目加大到4096，缺省为1024
 
 其他建议设置成无限制（unlimited）的一些重要设置是：
+```shell
 数据段长度：ulimit -d unlimited
 最大内存大小：ulimit -m unlimited
 堆栈大小：ulimit -s unlimited
 CPU 时间：ulimit -t unlimited
 虚拟内存：ulimit -v unlimited
-
->关键词：ulimit
+```
+> 关键词：ulimit
 配置生效方式
 
     暂时地，适用于通过 ulimit 命令登录 shell 会话期间。
     永久地，通过将一个相应的 ulimit 语句添加到由登录 shell 读取的文件中， 即特定于 shell 的用户资源文件，如：
 1)、解除 Linux 系统的最大进程数和最大文件打开数限制：
+```shell
         vi /etc/security/limits.conf
         # 添加如下的行
         * soft noproc 11000
@@ -111,12 +110,16 @@ CPU 时间：ulimit -t unlimited
         * soft nofile 4100
         * hard nofile 4100
       说明：* 代表针对所有用户，noproc 是代表最大进程数，nofile 是代表最大文件打开数
+```
 2)、让 SSH 接受 Login 程式的登入，方便在 ssh 客户端查看 ulimit -a 资源限制：
-        a、vi /etc/ssh/sshd_config
+```shell
+a、vi /etc/ssh/sshd_config
             把 UserLogin 的值改为 yes，并把 # 注释去掉
-        b、重启 sshd 服务：
+b、重启 sshd 服务：
               /etc/init.d/sshd restart
+```
 3)、修改所有 linux 用户的环境变量文件：
+```shell
     vi /etc/profile
     ulimit -u 10000
     ulimit -n 4096
@@ -125,6 +128,7 @@ CPU 时间：ulimit -t unlimited
     ulimit -s unlimited
     ulimit -t unlimited
     ulimit -v unlimited
+```
  保存后运行#source /etc/profile 使其生效
 
  
@@ -153,15 +157,18 @@ CPU 时间：ulimit -t unlimited
 看一下/etc/security/limits.conf大概就会明白。
 linux对用户有默认的ulimit限制，而这个文件可以配置用户的硬配置和软配置，硬配置是个上限。超出上限的修改就会出“不允许的操作”这样的错误。
 在limits.conf加上
+```
 *        soft    noproc 10240
 *        hard    noproc 10240
 *        soft    nofile 10240
 *        hard    nofile 10240
+```
 就是限制了任意用户的最大进程数和文件数为10240。
 
  
 
 如何设置普通用户的ulimit值
+```
 1、vim /etc/profile
 增加 ulimit -n 10240
 source /etc/profile 重新启动就不需要运行这个命令了。
@@ -171,25 +178,24 @@ source /etc/profile 重新启动就不需要运行这个命令了。
 \\限制打开文件数10240
 3、测试，新建普通用户，切换到普通用户使用ulit -a 查看是否修改成功。
  
-
+```
 查看系统级别资源限制：
 
 1.系统级别：
-
+```
 sysctl -a (-a:显示当前所有可用的值)
 
 系统总限制：cat /proc/sys/fs/file-max 等一系列值，修改/etc/sysctl.conf 中也可以控制
 
  /proc/sys/fs/file-nr，可以看到整个系统目前使用的文件句柄数量
 
- 
 
 修改此硬限制的方法是修改/etc/rc.local脚本，在脚本中添加如下行：
 
 echo 8000037 > /proc/sys/fs/file-max
 
 这是让Linux在启动完成后强行将系统级打开文件数硬限制设置为800037。
-
+```
 这表明这台Linux系统最多允许同时打开(即包含所有用户打开文件数总和)800037个文件，是Linux系统级硬限制，所有用户级的打开文件数限制都不应超过这个数值。该值是Linux系统在启动时根据系统硬件资源状况计算出来的最佳的最大同时打开文件数限制，如果没有特殊需要，不应该修改此限制，除非想为用户级打开文件数限制设置超过此限制的值。
 
  
@@ -199,6 +205,7 @@ echo 8000037 > /proc/sys/fs/file-max
  
 
 2.session 设置：
+```
 
 ulimit -a # 查看所有的 
 
@@ -208,10 +215,10 @@ ulimit -H -n1024 #设置当前会话的打开文件数硬连接数为 1024.
 
 ulimit -n 996 #设置当前会话的打开文件数硬&&软连接数都为 1024.
 
- 
+ ```
 
 3.设置用户(只针对用户的每个进程)：
-
+```
 #<domain> <type> <item> <value>
 
 #
@@ -223,36 +230,39 @@ ulimit -n 996 #设置当前会话的打开文件数硬&&软连接数都为 1024.
  
 
 ulimit -n vs. file-max ? 
+```
 简单的说, ulimit -n控制进程级别能够打开的文件句柄的数量, 而max-file表示系统级别的能够打开的文件句柄的数量。
 
 ulimit -n的设置在重启机器后会丢失，因此需要修改limits.conf的限制，limits.conf中有两个值soft和hard，soft代表只警告，hard代表真正的限制
-
+```
 Cat /etc/security/limits.conf
 
 *               soft    nofile          150000  
 *               hard    nofile          150000  
+```
 这里我们把soft和hard设置成一样的。
 
 “cat /proc/sys/fs/file-max”，或“sysctl -a | grep fs.file-max”查看系统能打开的最大文件数。查看和设置例如：
 
-复制代码
+```
+
 [root@vm014601 ~]# sysctl -a |grep fs.file-max  
 fs.file-max = 200592  
 [root@vm014601 ~]# echo "fs.file-max = 2005920" >> /etc/sysctl.conf   
 [root@vm014601 ~]# sysctl -p  
 [root@vm014601 ~]# cat /proc/sys/fs/file-max                          
 2005920
-复制代码
+```
 file-nr是只读文件，第一个数代表了目前分配的文件句柄数；第二个数代表了系统分配的最大文件句柄数；比如线上系统查看结果：
 
-复制代码
+```
 # cat /proc/sys/fs/file-max  
 1106537  
 # cat /proc/sys/fs/file-nr       
 1088  0       1106537  
 # lsof | wc -l  
 1506
-复制代码
+```
 可以看到file-nr和lsof的值不是很一致，但是数量级一致。为什么会不一致？原因如下： 
 
 写到lsof是列出系统所占用的资源,但是这些资源不一定会占用打开文件号的。如共享内存,信号量,消息队列,内存映射.等,虽然占用了这些资源,但不占用打开文件号.
