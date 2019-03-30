@@ -6,6 +6,7 @@ date:       2017-04-13
 author:     BY
 header-img: img/post-bg-hacker.jpg
 catalog: true
+categories: 随便聊聊
 tags:
     - iOS
     - Xcode

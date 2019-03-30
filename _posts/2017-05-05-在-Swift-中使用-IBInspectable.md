@@ -6,6 +6,7 @@ date:       2017-05-05
 author:     BY
 header-img: img/post-bg-swift.jpg
 catalog: true
+categories: Linux
 tags:
     - iOS
     - Swift

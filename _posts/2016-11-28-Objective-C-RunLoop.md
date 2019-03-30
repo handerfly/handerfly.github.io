@@ -6,6 +6,7 @@ date:       2016-11-28
 author:     BY
 header-img: img/post-bg-ios9-web.jpg
 catalog: true
+categories: Shell
 tags:
     - iOS
     - RunLoop
