@@ -39,7 +39,7 @@ header-img: "img/tag-bg.jpg"
             <!-- 标签列表 -->
 			{% for cat in site.categories %}
 			<div class="one-tag-list">
-			  	<span class="fa fa-tag listing-seperator" id="{{ tag[0] }}">
+			  	<span class="fa fa-tag listing-seperator" id="{{ cat[0] }}">
                     <span class="tag-text">{{ cat[0] }}</span>
                 </span>
 				{% for post in cat[1] %}
