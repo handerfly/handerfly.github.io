@@ -1,8 +1,7 @@
-±êÌâ
 ---
 layout:     post
-title:         ±êÌâ
-subtitle:   ×Ó±êÌâ
+title:      æ ‡é¢˜
+subtitle:   å‰¯æ ‡é¢˜
 date:       2019-03-31
 author:     BenderFly
 header-img: img/post-bg-screen.jpg
@@ -12,5 +11,5 @@ tags:
     - Linux
     - Screen
 ---
-Í¼Æ¬
-![img](https://github.com/handerfly/handerfly.github.io/blob/master/img/screan-error.jpg)
+
+![img](https://raw.githubusercontent.com/handerfly/handerfly.github.io/master/img/screen-error.png)
