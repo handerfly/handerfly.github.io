@@ -1,0 +1,16 @@
+标题
+---
+layout:     post
+title:         标题
+subtitle:   子标题
+date:       2019-03-31
+author:     BenderFly
+header-img: img/post-bg-screen.jpg
+catalog: true
+categories: Linux
+tags:
+    - Linux
+    - Screen
+---
+图片
+![img](https://github.com/handerfly/handerfly.github.io/blob/master/img/screan-error.jpg)
