@@ -1,15 +1,15 @@
----
-layout:     post
-title:      标题
-subtitle:   副标题
-date:       2019-03-31
-author:     BenderFly
-header-img: img/post-bg-screen.jpg
-catalog: true
-categories: Linux
-tags:
-    - Linux
-    - Screen
----
-
+#---
+#layout:     post
+#title:      标题
+#subtitle:   副标题
+#date:       2019-03-31
+#author:     BenderFly
+#header-img: img/post-bg-screen.jpg
+#catalog: true
+#categories: Linux
+#tags:
+#    - Linux
+#    - Screen
+#---
+#
 ![img](https://raw.githubusercontent.com/handerfly/handerfly.github.io/master/img/screen-error.png)
