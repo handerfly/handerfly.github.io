@@ -1,7 +1,7 @@
 ---
 layout:     post
 title:      shell笔记-local、export用法 、declare、set
-date:       2017-04-13
+date:       2019-04-02
 author:     BenderFly
 header-img: img/post-bg-hacker.jpg
 catalog: true
