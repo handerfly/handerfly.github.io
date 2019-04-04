@@ -99,4 +99,6 @@ do
 done
 
 ```
-![getopts](https://raw.githubusercontent.com/handerfly/handerfly.github.io/master/img/getopt.png)  
+![getopts](https://raw.githubusercontent.com/handerfly/handerfly.github.io/master/img/getopt.png)   
+
+> 注意这种方法的选项只能是一个字母。如-file就不行
