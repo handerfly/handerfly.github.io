@@ -1,7 +1,6 @@
 ---
 layout:     post
 title:      windows下MySQL 5.7+ 解压缩版安装配置方法
-subtitle:   Bulid Settings -> Documentation Comments -> NO
 date:       2019-04-12
 author:     BenderFly
 header-img: img/post_bg_debug.png
