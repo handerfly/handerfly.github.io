@@ -34,7 +34,7 @@ systemctl is-enabled NetworkManager #查看是否禁用
 ```
 
 可以看到关联的几个服务一起被禁用了。如果使用桌面的话，会发现网络管理的图标不见了。
-```
+
 
 # sysv+upstart管理上
 ```
