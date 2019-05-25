@@ -53,3 +53,9 @@ export PATH=$PATH:$JAVA_HOME/bin
 ```
 source /etc/profile
 ```
+
+
+[jdk下载地址](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
+[elasticsearch下载地址](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html)
+
+
