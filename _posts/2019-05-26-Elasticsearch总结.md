@@ -54,6 +54,13 @@ export PATH=$PATH:$JAVA_HOME/bin
 source /etc/profile
 ```
 
+# elasticsearch安装
+```
+curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.1.0-linux-x86_64.tar.gz
+tar -xvf elasticsearch-7.1.0-linux-x86_64.tar.gz
+cd elasticsearch-7.1.0/bin
+./elasticsearch  # ./elasticsearch -d 后台运行
+```
 
 [jdk下载地址](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [elasticsearch下载地址](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html)
