@@ -65,6 +65,10 @@ cd elasticsearch-7.1.0/bin
 > Java HotSpot(TM) 64-Bit Server VM warning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will likely be removed in a future release.
 这是因为JDK版本过高导致的，本机使用JDK12。
 
+> Exception in thread "main" java.nio.file.AccessDeniedException: /usr/local/elasticsearch-7.1.0/config/jvm.options
+elasticsearch用户没有该文件夹的权限，执行命令
+chown -R es:es /usr/local/elasticsearch/
+
 [jdk下载地址](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [elasticsearch下载地址](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html)
 
