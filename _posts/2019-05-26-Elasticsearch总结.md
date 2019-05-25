@@ -62,6 +62,9 @@ cd elasticsearch-7.1.0/bin
 ./elasticsearch  # ./elasticsearch -d 后台运行
 ```
 
+> Java HotSpot(TM) 64-Bit Server VM warning: Option UseConcMarkSweepGC was deprecated in version 9.0 and will likely be removed in a future release.
+这是因为JDK版本过高导致的，本机使用JDK12。
+
 [jdk下载地址](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [elasticsearch下载地址](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html)
 
