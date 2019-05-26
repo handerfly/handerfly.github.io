@@ -85,6 +85,9 @@ cd elasticsearch-7.1.0/bin
 elasticsearch用户没有该文件夹的权限，执行命令
 chown -R es:es /usr/local/elasticsearch/
 
+>{"error":"Content-Type header [application/x-www-form-urlencoded] is not supported","status":406}
+curl -H "Content-Type: application/json" -XPUT  加上-H参数
+
 [jdk下载地址](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [elasticsearch下载地址](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html)
 [elasticsearch常用插件](https://www.cnblogs.com/ZJ199012/p/6094083.html)
