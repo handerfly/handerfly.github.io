@@ -137,10 +137,10 @@ discovery.zen.minimum_master_nodes: 1
 
 
 # ES中常用的响应状态码    
-200 OK - 一般表示操作成功
-404 Not Found - 一般在查询时找不到文档是返回404找不到
-201 Created - 一般创建文档成功时返回201已经创建
-409 Conflict - 一般创建文档或者更新文档时失败返回冲突
+200 OK - 一般表示操作成功      
+404 Not Found - 一般在查询时找不到文档是返回404找不到     
+201 Created - 一般创建文档成功时返回201已经创建    
+409 Conflict - 一般创建文档或者更新文档时失败返回冲突    
 
 
 # The REST API
@@ -151,10 +151,10 @@ discovery.zen.minimum_master_nodes: 1
 curl -XGET 'http://localhost:9200/_cat/'
 ```
 
-要启用表头，添加 ?v 参数即可
-对任意 API 添加 ?help 参数,显示所有可用指标
-?h 参数来明确指定显示这些指标，多个指标用逗号隔开
-?bytes=b  字节显示
+要启用表头，添加 ?v 参数即可      
+对任意 API 添加 ?help 参数,显示所有可用指标     
+?h 参数来明确指定显示这些指标，多个指标用逗号隔开     
+?bytes=b  字节显示     
 ```
 [han@node1 ~]$curl -XGET 'http://localhost:9200/_cat/health'
 [han@node1 ~]$curl -XGET 'http://localhost:9200/_cat/health?v'
@@ -203,23 +203,23 @@ green  open .kibana_1            Uq2RcOz-QPikjfDLXrDEiA 1 0 5 0 19.2kb 19.2kb
    "unassigned_shards":     0
 }
 ```
-status 字段是我们最关心的。
-status 字段指示着当前集群在总体上是否工作正常。它的三种颜色含义如下：
-green
-所有的主分片和副本分片都正常运行。
-yellow
-所有的主分片都正常运行，但不是所有的副本分片都正常运行。
-red
-有主分片没能正常运行
+status 字段是我们最关心的。    
+status 字段指示着当前集群在总体上是否工作正常。它的三种颜色含义如下：   
+green    
+所有的主分片和副本分片都正常运行。    
+yellow    
+所有的主分片都正常运行，但不是所有的副本分片都正常运行。    
+red    
+有主分片没能正常运行    
 
 
 # 创建索引
 > 在索引建立的时候就已经确定了主分片数，但是副本分片数可以随时修改。
 在新建文档的时候如果指定的索引不存在则会自动创建相应的索引        
 ```
-curl -XPUT 'localhost:9200/blogs?pretty'
+curl -XPUT 'localhost:9200/customer?pretty'
 # 或者
-curl -X PUT "localhost:9200/blogs" -H 'Content-Type: application/json' -d'
+curl -X PUT "localhost:9200/customer" -H 'Content-Type: application/json' -d'
 {
    "settings" : {
       "number_of_shards" : 3,
@@ -233,15 +233,19 @@ curl -X PUT "localhost:9200/blogs" -H 'Content-Type: application/json' -d'
 ```
 curl -X GET "localhost:9200/_cat/indices?v"
 ```
-# 索引并查询一个文档  index:blogs, type:mysql, id:1
+# 索引并查询一个文档  index:customer, type:mysql, id:1
 ```
-curl -X PUT "localhost:9200/blogs/mysql/1?pretty" -H 'Content-Type: application/json' -d'{"name": "John Doe"}'
+curl -X PUT "localhost:9200/customer/user/1?pretty" -H 'Content-Type: application/json' -d'{"name": "John Doe"}'
+```
+# 修改一个索引
+```
+curl -X PUT 'localhost:9200/customer/_settings' -H 'Content-type:Application/json' -d '{"index":{"number_of_replicas":2}}'
 ```
 
 # 修改数据
 在 Elasticsearch 中文档是 不可改变 的，不能修改它们.每当我们执行更新时，Elasticsearch就会删除旧文档，然后索引一个新的文档
 ```
-curl -X POST "localhost:9200/blogs/mysql/1/_update?pretty" -H 'Content-Type: application/json' -d'
+curl -X POST "localhost:9200/customer/user/1/_update?pretty" -H 'Content-Type: application/json' -d'
 {
   "doc": { "name": "Jane Doe", "age": 20 }
 }
@@ -249,7 +253,7 @@ curl -X POST "localhost:9200/blogs/mysql/1/_update?pretty" -H 'Content-Type: app
 ```
 使用script修改数据
 ```
-[han@node1 ~]$ curl -X POST "localhost:9200/blogs/mysql/1/_update?pretty" -H 'Content-Type: application/json' -d'
+[han@node1 ~]$ curl -X POST "localhost:9200/customer/user/1/_update?pretty" -H 'Content-Type: application/json' -d'
 {
   "script" : "ctx._source.age += 5"
 }
@@ -257,7 +261,7 @@ curl -X POST "localhost:9200/blogs/mysql/1/_update?pretty" -H 'Content-Type: app
 #返回如下内容
 {
   "_index" : "customer",
-  "_type" : "_doc",
+  "_type" : "user",
   "_id" : "1",
   "_version" : 3,
   "result" : "updated",
@@ -273,9 +277,20 @@ curl -X POST "localhost:9200/blogs/mysql/1/_update?pretty" -H 'Content-Type: app
 ```
 # 删除一个索引
 ```
-curl -X DELETE "localhost:9200/blogs?pretty"
+curl -X DELETE "localhost:9200/customer?pretty"
 ```
 
+
+# _bulk API批量执行
+索引两个文档（ID 1 - John Doe 和 ID 2 - Jane Doe）
+```
+curl -X POST "localhost:9200/customer/user/_bulk?pretty" -H 'Content-Type: application/json' -d'
+{"index":{"_id":"1"}}
+{"name": "John Doe" }
+{"index":{"_id":"2"}}
+{"name": "Jane Doe" }
+'
+```
 
 
 
