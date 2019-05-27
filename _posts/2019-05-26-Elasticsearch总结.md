@@ -435,7 +435,8 @@ flush操作与translog
 我们可能已经意识到如果数据在filesystem cache之中是很有可能在意外的故障中丢失。这个时候就需要一种机制，可以将对es的操作记录下来，来确保当出现故障的时候，保留在filesystem的数据不会丢失，并在重启的时候可以从这个记录中将数据恢复过来。elasticsearch提供了translog来记录这些操作。
 当向elasticsearch发送创建document索引请求的时候，document数据会先进入到index buffer之后，与此同时会将操作记录在translog之中，当发生refresh时（数据从index buffer中进入filesystem cache的过程）translog中的操作记录并不会被清除，而是当数据从filesystem cache中被写入磁盘之后才会将translog中清空。而从filesystem cache写入磁盘的过程就是flush。可能有点晕，我画了一个图帮大家理解这个过程：
 
-![refreshflush](https://github.com/handerfly/handerfly.github.io/blob/master/img/refresh.jpg)
+![refreshflush](https://raw.githubusercontent.com/handerfly/handerfly.github.io/master/img/refresh.jpg)
+               
 
 总结一下translog的功能：   
 1.保证在filesystem cache中的数据不会因为elasticsearch重启或是发生意外故障的时候丢失。   
