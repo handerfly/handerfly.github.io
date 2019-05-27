@@ -309,10 +309,41 @@ curl -X POST "localhost:9200/customer/user/_bulk?pretty" -H 'Content-Type: appli
 ```
 
 # The Search API
+运行搜索有两种基本方法：一种是把检索参数放在URL后面，另一种是放在请求体里面。相当于HTTP的GET和POST请求
+```
+# 方法1
+curl -X GET "localhost:9200/bank/_search?q=*&sort=account_number:asc&pretty"
+# 方法2
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": { "match_all": {} },
+  "sort": [
+    { "account_number": "asc" }
+  ]
+}
+'
+```
 
+# 查询语言
+Elasticsearch提供了一种JSON风格的语言，您可以使用这种语言执行查询。这被成为查询DSL。
 
+> 注意：如果size没有指定，则默认是10    
 
+下面的例子执行match_all，并返回第10到19条文档：
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": { "match_all": {} },
+  "from": 10,
+  "size": 10
+}
+'
+```
+from参数（从0开始）指定从哪个文档索引开始，并且size参数指定从from开始返回多少条。这个特性在分页查询时非常有用。
 
+> 注意：如果没有指定from，则默认从0开始
+  
+  
 
 
 
