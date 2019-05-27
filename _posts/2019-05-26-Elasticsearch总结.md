@@ -412,7 +412,7 @@ curl -X POST "localhost:9200/customer/user/_bulk?pretty" -H 'Content-Type: appli
 
 
 
-# elasticsearch中 refresh 和flush区别
+# refresh 和flush区别
 elasticsearch中有两个比较重要的操作：refresh 和 flush      
 refresh操作    
 当我们向ES发送请求的时候，我们发现es貌似可以在我们发请求的同时进行搜索。而这个实时建索引并可以被搜索的过程实际上是一次es 索引提交（commit）的过程，如果这个提交的过程直接将数据写入磁盘（fsync）必然会影响性能，所以es中设计了一种机制，即：先将index-buffer中文档（document）解析完成的segment写到filesystem cache之中，这样避免了比较损耗性能io操作，又可以使document可以被搜索。以上从index-buffer中取数据到filesystem cache中的过程叫做refresh。
