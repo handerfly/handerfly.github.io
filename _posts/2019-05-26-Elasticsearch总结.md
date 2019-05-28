@@ -363,7 +363,7 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
 '
 ```
 
-下面的例子返回address中包含"mill"或者"lane"的账户,相当于SELECT * FROM bank WHERE address LIKE '%mill' OR address LIKE '%lane%'：
+下面的例子返回address中包含"mill"或者"lane"的账户,相当于SELECT * FROM bank WHERE address LIKE '%mill%' OR address LIKE '%lane%'：
 ```
 curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
 {
@@ -371,8 +371,328 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
 }
 '
 ```
-  
 
+bool查询允许我们使用布尔逻辑将较小的查询组合成较大的查询
+下面的例子将两个match查询组合在一起，返回address中包含"mill"和"lane"的账户,相当于SELECT * FROM bank WHERE address LIKE '%mill%lane%'：
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "address": "mill" } },
+        { "match": { "address": "lane" } }
+      ]
+    }
+  }
+}
+'
+```
+
+上面是bool must查询，下面这个是bool shoud查询,must相当于and，shoud相当于or，must_not相当于！：
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "bool": {
+      "should": [
+        { "match": { "address": "mill" } },
+        { "match": { "address": "lane" } }
+      ]
+    }
+  }
+}
+'
+```
+
+我们可以在bool查询中同时组合must、should和must_not子句。此外，我们可以在任何bool子句中编写bool查询，以模拟任何复杂的多级布尔逻辑。
+
+下面的例子是一个综合应用：
+相当于SELECT * FROM bank WHERE age LIKE '%40%' AND state NOT LIKE '%ID%'
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "bool": {
+      "must": [
+        { "match": { "age": "40" } }
+      ],
+      "must_not": [
+        { "match": { "state": "ID" } }
+      ]
+    }
+  }
+}
+'
+```
+
+
+# 布尔过滤器编辑
+一个 bool 过滤器由三部分组成：
+```
+{
+   "bool" : {
+      "must" :     [],
+      "should" :   [],
+      "must_not" : [],
+   }
+}
+```
+must   
+所有的语句都 必须（must） 匹配，与 AND 等价。   
+must_not   
+所有的语句都 不能（must not） 匹配，与 NOT 等价。    
+should    
+至少有一个语句要匹配，与 OR 等价。     
+分数是一个数值，它是文档与我们指定的搜索查询匹配程度的相对度量（PS：相似度）。分数越高，文档越相关，分数越低，文档越不相关。
+
+但是查询并不总是需要产生分数，特别是当它们仅用于“过滤”文档集时。Elasticsearch检测到这些情况并自动优化查询执行，以便不计算无用的分数。
+
+我们在前一节中介绍的bool查询还支持filter子句，该子句允许使用查询来限制将由其他子句匹配的文档，而不改变计算分数的方式。
+
+作为一个例子，让我们引入range查询，它允许我们通过一系列值筛选文档。这通常用于数字或日期过滤。
+
+下面这个例子用一个布尔查询返回所有余额大于等于20000并且小于等等30000的账户。
+
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": {
+    "bool": {
+      "must": { "match_all": {} },
+      "filter": {
+        "range": {
+          "balance": {
+            "gte": 20000,
+            "lte": 30000
+          }
+        }
+      }
+    }
+  }
+}
+'
+```
+# term,match,match_phase的区别
+term：代表完全匹配，即不进行分词器分析，文档中必须包含整个搜索的词汇。而match,match_phase会被先分词然后再查询
+```
+{
+    "query":{
+        "term":{
+            "foo": "Hello world"
+        }
+    }
+}
+```
+那么只有在字段中存储了“Hello world”的数据才会被返回   
+
+match模糊匹配，先对输入进行分词，对分词后的结果进行查询，文档只要包含match查询条件的一部分就会被返回    
+match_phase习语匹配，查询确切的phase，在对查询字段定义了分词器的情况下，会使用分词器对输入进行分词，然后返回满足下述两个条件的document:    
+1.match_phase中的所有term都出现在待查询字段之中     
+2.待查询字段之中的所有term都必须和match_phase具有相同的顺序    
+
+# text和keyword的区别
+1. text类型：会分词，先把对象进行分词处理，然后再再存入到es中。    
+当使用多个单词进行查询的时候，当然查不到已经分词过的内容！   
+2. keyword：不分词，没有把es中的对象进行分词处理，而是存入了整个对象 ，ignore_above这个字段默认忽略所有长度超过 256个字符串   
+对超过 ignore_above 的字符串，analyzer 不会进行处理；所以就不会索引起来。
+
+# 分组聚集
+按照state分组
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "size": 0,
+  "aggs": {
+    "group_by_state": {
+      "terms": {
+        "field": "state.keyword"
+      }
+    }
+  }
+}
+'
+```
+> term查询只是不采用分词器和分析器，也就是说如果字段值：Quick brown foxes leap over lazy dogs in summer，若使用term查询字符串：dogs，还是可以查出来，但是查询字符串：Dogs或者Dogs summer就查不出来了，因为没有使用分词和分析
+
+按照state分组，然后取balance的平均值
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "size": 0,
+  "aggs": {
+    "group_by_state": {
+      "terms": {
+        "field": "state.keyword"
+      },
+      "aggs": {
+        "average_balance": {
+          "avg": {
+            "field": "balance"
+          }
+        }
+      }
+    }
+  }
+}
+'
+```
+下面这个例子展示了我们如何根据年龄段(20-29岁，30-39岁，40-49岁)来分组，然后根据性别分组，最后得到平均账户余额，每个年龄等级，每个性别：
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "size": 0,
+  "aggs": {
+    "group_by_age": {
+      "range": {
+        "field": "age",
+        "ranges": [
+          {
+            "from": 20,
+            "to": 30
+          },
+          {
+            "from": 30,
+            "to": 40
+          },
+          {
+            "from": 40,
+            "to": 50
+          }
+        ]
+      },
+      "aggs": {
+        "group_by_gender": {
+          "terms": {
+            "field": "gender.keyword"
+          },
+          "aggs": {
+            "average_balance": {
+              "avg": {
+                "field": "balance"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+'
+```
+group_by_make 聚合，它是一个 terms 桶（嵌套在 colors 、 terms 桶内）。这意味着它 会为数据集中的每个唯一组合生成（ color 、 make ）(汽车颜色，制造商案例)元组。
+```
+curl -X GET "localhost:9200/cars/transactions/_search" -H 'Content-Type: application/json' -d'
+{
+   "size" : 0,
+   "aggs": {
+      "colors": {
+         "terms": {
+            "field": "color"
+         },
+         "aggs": {
+            "avg_price": { 
+               "avg": {
+                  "field": "price"
+               }
+            },
+            "group_by_make": { 
+                "terms": {
+                    "field": "make" 
+                }
+            }
+         }
+      }
+   }
+}
+'
+
+```
+missing处理没有值的文档,如下会把grade没有值的文档归为grade=10的分组
+```
+POST /exams/_search?size=0
+{
+    "aggs" : {
+        "grade_avg" : {
+            "avg" : {
+                "field" : "grade",
+                "missing": 10 
+            }
+        }
+    }
+}
+```
+
+range 查询同样可以应用在日期字段上：
+```
+GET dss_checkin_index/_search
+{
+  "size": 0,
+  "query": {
+    "bool": {
+      "must": [
+        {
+          "range": {
+            "checkInTime": {
+              "gte": "2015-06-01 00:00:00 000",
+              "lt": "2015-07-01 00:00:00 000"
+            }
+          }
+        }
+      ]
+    }
+  },
+  "aggs": {
+    "name": {
+      "terms": {
+        "field": "user.keyword"
+      },
+      "aggs": {
+        "top_users": {
+          "top_hits": {
+            "size": 100
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+
+  
+range 查询支持对 日期计算（date math） 进行操作，比方说，如果我们想查找时间戳在过去一小时内的所有文档：
+```
+"range" : {
+    "timestamp" : {
+        "gt" : "now-1h"
+    }
+}
+```
+在某个日期后加上一个双管符号 (||) 并紧跟一个日期数学表达式,如：
+早于 2014 年 1 月 1 日加 1 月（2014 年 2 月 1 日 零时）
+```
+"range" : {
+    "timestamp" : {
+        "gt" : "2014-01-01 00:00:00",
+        "lt" : "2014-01-01 00:00:00||+1M" 
+    }
+}
+```
+
+字符串范围编辑
+range 查询同样可以处理字符串字段， 字符串范围可采用 字典顺序（lexicographically） 或字母顺序（alphabetically）。   
+例如，下面这些字符串是采用字典序（lexicographically）排序的：
+5, 50, 6, B, C, a, ab, abb, abc, b     
+查找从 a 到 b （不包含）的字符串
+```
+"range" : {
+    "title" : {
+        "gte" : "a",
+        "lt" :  "b"
+    }
+}
+```
 
 
 
