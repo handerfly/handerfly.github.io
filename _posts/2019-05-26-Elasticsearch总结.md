@@ -342,7 +342,35 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
 from参数（从0开始）指定从哪个文档索引开始，并且size参数指定从from开始返回多少条。这个特性在分页查询时非常有用。
 
 > 注意：如果没有指定from，则默认从0开始
-  
+
+
+下面的例子返回account_number为20的文档,相当于SELECT * FROM bank WHERE account_number = 20
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": { "match": { "account_number": 20 } }
+}
+'
+```
+
+
+下面的例子返回address中包含"mill"的账户,相当于SELECT * FROM bank WHERE address LIKE '%mill%'：
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": { "match": { "address": "mill" } }
+}
+'
+```
+
+下面的例子返回address中包含"mill"或者"lane"的账户,相当于SELECT * FROM bank WHERE address LIKE '%mill' OR address LIKE '%lane%'：
+```
+curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+{
+  "query": { "match": { "address": "mill lane" } }
+}
+'
+```
   
 
 
