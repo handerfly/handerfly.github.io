@@ -695,82 +695,94 @@ range 查询同样可以处理字符串字段， 字符串范围可采用 字典
 ```
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# 处理 Null 值,exists,missing
+null, [] （空数组）和 [null] 所有这些都是等价的，它们无法存于倒排索引中
+例文档并用标签的例子来说明,以下文档每个tags都对应不同的值：
+```
+POST /my_index/posts/_bulk
+{ "index": { "_id": "1"              }}
+{ "tags" : ["search"]                }  
+{ "index": { "_id": "2"              }}
+{ "tags" : ["search", "open_source"] }  
+{ "index": { "_id": "3"              }}
+{ "other_field" : "some data"        }  
+{ "index": { "_id": "4"              }}
+{ "tags" : null                      }  
+{ "index": { "_id": "5"              }}
+{ "tags" : ["search", null]          }  
+```
+
+以上文档集合中 tags 字段对应的倒排索引如下：
+```
+Token	      	 DocIDs
+open_source			2
+search				1,2,5
+
+```
+找到那些被设置过标签字段的文档，并不关心标签的具体内容。只要它存在于文档中即可，
+```
+GET /my_index/posts/_search
+{
+    "query" : {
+        "constant_score" : {
+            "filter" : {
+                "exists" : { "field" : "tags" }
+            }
+        }
+    }
+}
+```
+这个查询返回 3 个文档：
+```
+"hits" : [
+    {
+      "_id" :     "1",
+      "_score" :  1.0,
+      "_source" : { "tags" : ["search"] }
+    },
+    {
+      "_id" :     "5",
+      "_score" :  1.0,
+      "_source" : { "tags" : ["search", null] } 
+    },
+    {
+      "_id" :     "2",
+      "_score" :  1.0,
+      "_source" : { "tags" : ["search", "open source"] }
+    }
+]
+```
+> 尽管文档 5 有 null 值，但它仍会被命中返回。字段之所以存在，是因为标签有实际值（ search ）可以被索引，所以 null 对过滤不会产生任何影响。
+
+missing 查询本质上与 exists 恰好相反： 它返回某个特定 _无_ 值字段的文档
+我们将前面例子中 exists 查询换成 missing 查询：
+```
+GET /my_index/posts/_search
+{
+    "query" : {
+        "constant_score" : {
+            "filter": {
+                "missing" : { "field" : "tags" }
+            }
+        }
+    }
+}
+```
+按照期望的那样，我们得到 3 和 4 两个文档（这两个文档的 tags 字段没有实际值）：
+```
+"hits" : [
+    {
+      "_id" :     "3",
+      "_score" :  1.0,
+      "_source" : { "other_field" : "some data" }
+    },
+    {
+      "_id" :     "4",
+      "_score" :  1.0,
+      "_source" : { "tags" : null }
+    }
+]
+```
 
 
 
