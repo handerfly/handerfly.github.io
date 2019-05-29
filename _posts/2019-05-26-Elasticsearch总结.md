@@ -657,7 +657,59 @@ GET dss_checkin_index/_search
     }
   }
 }
+``` 
+top_hits的作用就是在每个组下面的数据进行筛选    
+size：每组显示的数据    
+sort：每组的排序    
+_source.includes：每组显示哪些属性值
+案例如下：
 ```
+PUT /my_index/_bulk?refresh
+{"index":{"_id":1}}
+{"name":"小明","content":"深圳大厦很高的","age":12}
+{"index":{"_id":2}}
+{"name":"小明","content":"深圳天气还是不错的","age":14}
+{"index":{"_id":3}}
+{"name":"小红","content":"深圳交通很棒","age":13}
+{"index":{"_id":4}}
+{"name":"小明","content":"深圳是很好是吧","age":16}
+{"index":{"_id":5}}
+{"name":"小春","content":"美女在深圳很多","age":16}
+{"index":{"_id":6}}
+{"name":"小红","content":"深圳的帅哥很多","age":16}
+```  
+     
+```
+GET /my_index/_search
+{
+  "size": 0,
+  "aggs": {
+    "group_agg":{
+      "terms": {
+        "field": "name.keyword"
+      },
+      "aggs": {
+        "top_data": {
+          "top_hits": {
+            "size": 2,
+            "sort": [
+              {
+                "age": {
+                  "order": "desc"
+                }
+              }  
+            ],
+            "_source": {
+              "includes": ["content","age"]
+            }
+          }
+        }
+      }
+    }
+  }
+}
+```
+
 
 
   
