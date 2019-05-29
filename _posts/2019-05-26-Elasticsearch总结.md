@@ -473,6 +473,31 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
 }
 '
 ```
+在查询的字段只有一个值的时候，应该使用term而不是terms，在查询字段包含多个的时候才使用terms(类似于sql中的in、or)，使用terms语法，JSON中必须包含数组。
+```
+{
+    "terms": {
+        "lang": [1]
+    }
+},
+
+GET /forum/article/_search
+{
+  "query": {
+    "constant_score": {
+      "filter": {
+        "terms": {
+          "articleID.keyword": [
+            "KDKE-B-9947-#kL5",
+            "QQPX-R-3956-#aD8"
+          ]
+        }
+      }
+    }
+  }
+}
+```
+
 # term,match,match_phase的区别
 term：代表完全匹配，即不进行分词器分析，文档中必须包含整个搜索的词汇。而match,match_phase会被先分词然后再查询
 ```
@@ -607,6 +632,28 @@ curl -X GET "localhost:9200/cars/transactions/_search" -H 'Content-Type: applica
 }
 '
 
+```
+可以定义多个字段为group,一下例子中的by_size，和by_material表示以size和material分组
+```
+{
+   "query": {
+     "match": {
+       "title": "Beach"
+     }
+   },
+   "aggs": {
+     "by_size": {
+       "terms": {
+        "field": "size"
+      }
+    },
+    "by_material": {
+      "terms": {
+        "field": "material"
+      }
+    }
+  }
+}
 ```
 missing处理没有值的文档,如下会把grade没有值的文档归为grade=10的分组
 ```
