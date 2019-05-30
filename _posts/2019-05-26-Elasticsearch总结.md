@@ -419,9 +419,113 @@ $ curl -XPUT localhost:9200/my_index/_doc/1?timestamp=2016-07-14T09:23:38.388Z -
          }
 }
 ```
+# 映射mapping
+添加映射
+```
+PUT twitter 
+{}
 
-  
+PUT twitter/_mapping 
+{
+  "properties": {
+    "email": {
+      "type": "keyword"
+    }
+  }
+}
+```
+修改字段映射
+```
+PUT my_index 
+{
+  "mappings": {
+    "properties": {
+      "name": {
+        "properties": {
+          "first": {
+            "type": "text"
+          }
+        }
+      },
+      "user_id": {
+        "type": "keyword"
+      }
+    }
+  }
+}
 
+PUT my_index/_mapping
+{
+  "properties": {
+    "name": {
+      "properties": {
+        "last": {         //在name对象字段下 添加一个字段last。
+          "type": "text"
+        }
+      }
+    },
+    "user_id": {
+      "type": "keyword",
+      "ignore_above": 100   //ignore_above从默认值0 更新设置。
+    }
+  }
+}
+
+```
+# dynamic 
+dynamic有三个值：
+true（默认） 新检测到的字段会自动添加到文档,mapping会自动更新     
+false        新检测到的字段将被忽略。这些字段不会被编入索引，因此无法搜索，但仍会出现在_source返回的匹配字段中。这些字段不会添加到映射中，必须显式添加新字段。    
+strict 		 如果检测到新字段，则抛出异常并拒绝该文档。必须将新字段显式添加到映射中。 
+
+
+``` 
+PUT my_index/_doc/1      //本文档介绍字符串字段username，对象字段 name和name对象下的两个字符串字段，可以称为name.first和name.last。
+{
+  "username": "johnsmith",
+  "name": {
+    "first": "John",
+    "last": "Smith"
+  }
+}
+
+GET my_index/_mapping 
+
+PUT my_index/_doc/2 
+{
+  "username": "marywhite",
+  "email": "mary@white.com",  //本文档添加了两个字符串字段：email和name.middle。因为默认dynamic为true，所有会自动添加到mapping，可以被索引
+  "name": {
+    "first": "Mary",
+    "middle": "Alice",    
+    "last": "White"
+  }
+}
+
+GET my_index/_mapping 
+``` 
+dynamic可以在映射类型级别和每个内部对象上设置该设置 。内部对象从其父对象或映射类型继承该设置。例如
+```
+PUT my_index
+{
+  "mappings": {
+    "dynamic": false,    //在类型级别禁用动态映射，因此不会动态添加新的顶级字段。
+    "properties": {
+      "user": {          //该user对象继承了类型级别设置。
+        "properties": {
+          "name": {
+            "type": "text"
+          },
+          "social_networks": { 
+            "dynamic": true,   //该user.social_networks对象启用动态映射，因此可以将新字段添加到此内部对象。
+            "properties": {}
+          }
+        }
+      }
+    }
+  }
+}
+```
 
 
 
@@ -459,10 +563,7 @@ curl -X POST "localhost:9200/blog/user/1/_update?pretty" -H 'Content-Type: appli
 }
 '
 ```
-# 删除一个索引
-```
-curl -X DELETE "localhost:9200/customer?pretty"
-```
+
 
 
 # _bulk API批量执行
@@ -671,10 +772,7 @@ GET /forum/article/_search
     "constant_score": {
       "filter": {
         "terms": {
-          "articleID.keyword": [
-            "KDKE-B-9947-#kL5",
-            "QQPX-R-3956-#aD8"
-          ]
+          "articleID.keyword": ["吃饭","游戏"]
         }
       }
     }
