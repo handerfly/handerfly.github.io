@@ -347,6 +347,82 @@ POST _aliases
 GET alias1
 ```
 
+# Typeless APIs
+```
+PUT index
+{
+  "mappings": {
+    "properties": { // 注意没有指定type
+      "@timestamp": {
+        "type": "date"
+      }
+    }
+  }
+}
+
+PUT index/_doc/1 // index, get and delete requests使用_doc代替
+{
+  "@timestamp": "2019-02-20"
+}
+
+POST index/_bulk
+{"index": {"_id": "2"}} //  在 metadata中没有 _type
+{"@timestamp": "2019-03-01"}
+{"update": {"_id": "1"}}
+{"@timestamp": "2019-02-21"}
+
+GET index/_doc/2
+
+GET index/_search // `GET index/{type}/_search` 被弃用
+{
+  "query": {
+    "range": {
+      "@timestamp": {
+        "gte": "2019-01-01"
+      }
+    }
+  }
+}
+
+GET index/_explain/1 // 6.x版本使用 "GET index/{type}/1/_explain" 
+{
+  "query": {
+    "range": {
+      "@timestamp": {
+        "gte": "2019-01-01"
+      }
+    }
+  }
+}
+```
+# 记录添加时间戳timestamp
+添加时间戳可以在索引数据时指定
+```
+$ curl -XPUT localhost:9200/my_index/_doc/1?timestamp=2016-07-14T09:23:38.388Z -d '{
+    "user" : "kimchy",
+    "message" : "trying out Elasticsearch"
+}'
+```
+
+如果没有手动指定时间戳，_source中是不会存在时间戳的。如果想为每个索引文档自动创建时间戳，必须在创建索引时指定Mapping，将@timestamp设置为enable。    
+否则，即使以后更改，新的数据也是无法加上时间戳的。
+```
+"properties": {
+         "@timestamp":{
+                   "format":"strict_date_optional_time||epoch_millis",
+                   "type":"date"
+                   "enabled":true
+         }
+}
+```
+若使用logstash来做日志收集，logstash会根据事件传输的当前时间自动给事件加上@timestamp字段。     
+时间戳的数据类型是date，Date类型在Elasticsearch中有三种方式：    
+传入格式化的字符串，默认是ISO 8601标准     
+使用毫秒的时间戳，长整型，直接将毫秒值传入即可    
+使用秒的时间戳，整型        
+在Elasticsearch内部，对时间类型字段，是统一采用 UTC 时间。在做查询和显示是需要转换时间内容增加8个小时，调整时区为东八区。     
+
+
 
 
 
