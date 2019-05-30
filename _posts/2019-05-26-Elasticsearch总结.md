@@ -215,8 +215,46 @@ red
 
 # 创建索引
 > 在索引建立的时候就已经确定了主分片数，但是副本分片数可以随时修改。
-在新建文档的时候如果指定的索引不存在则会自动创建相应的索引        
+在新建文档的时候如果指定的索引不存在则会自动创建相应的索引       
+  
+（1）不能超过255个字节     
+（2）索引名不能包含大些字母     
+（3）我们新建的索引，默认分片和副本都是1。     
+#判定索引是否存在
 ```
+HEAD blogs
+# 返回
+200 - OK
+404 - Not Found
+
+GET /_cat/indices
+# 关闭test索引
+POST test/_close
+# 重新打开test索引
+POST test/_open
+```   
+# 索引配置
+```
+PUT blog
+{
+    "settings" : {
+        "index" : {
+            "number_of_shards" : 2,
+            "number_of_replicas" : 2
+        }
+    }
+}
+```
+也可以简化为不必在settings部分中明确指定索引部分。
+```
+PUT blog
+{
+    "settings" : {
+        "number_of_shards" : 2,
+        "number_of_replicas" : 2
+    }
+}
+
 curl -XPUT 'localhost:9200/customer?pretty'
 # 或者
 curl -X PUT "localhost:9200/customer" -H 'Content-Type: application/json' -d'
@@ -229,23 +267,93 @@ curl -X PUT "localhost:9200/customer" -H 'Content-Type: application/json' -d'
 '
 ```
 
-# 查询索引
+
+# 查看索引
 ```
+GET blog
+# 索引列表
+GET /_cat/indices?v
 curl -X GET "localhost:9200/_cat/indices?v"
 ```
 # 索引并查询一个文档 
 ```
-curl -X PUT "localhost:9200/customer/user/1?pretty" -H 'Content-Type: application/json' -d'{"name": "John Doe"}'
+curl -X PUT "localhost:9200/blog/user/1?pretty" -H 'Content-Type: application/json' -d'{"name": "John Doe"}'
 ```
 # 修改一个索引
 ```
-curl -X PUT 'localhost:9200/customer/_settings' -H 'Content-type:Application/json' -d '{"index":{"number_of_replicas":2}}'
+PUT blog/_settings
+{
+  "number_of_replicas": 1
+}
+#或者
+curl -X PUT 'localhost:9200/blog/_settings' -H 'Content-type:Application/json' -d '{"index":{"number_of_replicas":2}}'
 ```
+
+#删除索引
+```
+DELETE blog
+```
+
+# 索引别名
+（1）创建多个索引
+```
+PUT index1
+PUT index2
+```
+（2）创建index1的别名alias1,此时别名alias1和index1一对一。
+```
+POST _aliases
+{
+  "actions": [
+    {
+      "add": {
+        "index": "index1",
+        "alias": "alias1"
+      }
+    }
+  ]
+}
+```
+（3）添加多个索引的别名,我们是不能对alias1进行写操作，当有多个索引时的别名，不能区分到底操作哪一个索引
+```
+POST _aliases
+{
+  "actions": [
+    {
+      "add": {
+        "indices": ["index2","test"],
+        "alias": "alias1"
+      }
+    }
+  ]
+}
+```
+（4）移除别名
+```
+POST _aliases
+{
+  "actions": [
+    {
+      "remove": {
+        "index": "test",
+        "alias": "alias1"
+      }
+    }
+  ]
+}
+```
+（5）查看别名
+```
+GET alias1
+```
+
+
+
 
 # 修改数据
 在 Elasticsearch 中文档是 不可改变 的，不能修改它们.每当我们执行更新时，Elasticsearch就会删除旧文档，然后索引一个新的文档
 ```
-curl -X POST "localhost:9200/customer/user/1/_update?pretty" -H 'Content-Type: application/json' -d'
+curl -X POST "localhost:9200/blog/user/1/_update?pretty" -H 'Content-Type: application/json' -d'
 {
   "doc": { "name": "Jane Doe", "age": 20 }
 }
