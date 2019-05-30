@@ -414,8 +414,8 @@ $ curl -XPUT localhost:9200/my_index/_doc/1?timestamp=2016-07-14T09:23:38.388Z -
 ```
 "properties": {
          "@timestamp":{
-				   "format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
-                   "type":"date"
+					"format": "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+					"type":"date"
          }
 }
 ```
