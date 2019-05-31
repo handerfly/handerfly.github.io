@@ -668,7 +668,7 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
 ```
 GET / bank / _search
 {
-  “query”：{“match_phrase”：{“address”：“mill lane”}}
+  "query"：{"match_phrase"：{"address"："mill lane"}}
 }
 ```
 
@@ -877,6 +877,32 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
   }
 }
 '
+```
+按照年龄分组，并计算平均balance，结果按照balance平均倒序输出
+```
+GET bank/_search
+{
+  "size": 0, 
+  "query": {"match_all": {}  },
+  "aggs": {
+    "group_by_age": {
+      "terms": {
+        "field": "age",
+        "size": 10,
+        "order": {
+          "avg_of_balance": "desc"
+        }
+      },
+      "aggs": {
+        "avg_of_balance": {
+          "avg": {
+            "field": "balance"
+          }
+        }
+      }
+    }
+  }
+}
 ```
 下面这个例子展示了我们如何根据年龄段(20-29岁，30-39岁，40-49岁)来分组，然后根据性别分组，最后得到平均账户余额，每个年龄等级，每个性别：
 ```
