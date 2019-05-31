@@ -533,11 +533,10 @@ PUT my_index
 # 修改数据
 在 Elasticsearch 中文档是 不可改变 的，不能修改它们.每当我们执行更新时，Elasticsearch就会删除旧文档，然后索引一个新的文档
 ```
-curl -X POST "localhost:9200/blog/user/1/_update?pretty" -H 'Content-Type: application/json' -d'
+POST /customer/_update/1?pretty
 {
   "doc": { "name": "Jane Doe", "age": 20 }
 }
-'
 ```
 使用script修改数据
 ```
@@ -563,18 +562,27 @@ curl -X POST "localhost:9200/blog/user/1/_update?pretty" -H 'Content-Type: appli
 }
 '
 ```
-
-
+# 删除文档
+```
+DELETE /customer/_doc/2?pretty
+```
 
 # _bulk API批量执行
+Bulk API不会因其中一个操作失败而失败。如果单个操作因任何原因失败，它将继续处理其后的其余操作。     
+批量API返回时，它将为每个操作提供一个状态（按照发送的顺序），以便您可以检查特定操作是否失败    
 索引两个文档（ID 1 - John Doe 和 ID 2 - Jane Doe）
 ```
-curl -X POST "localhost:9200/customer/user/_bulk?pretty" -H 'Content-Type: application/json' -d'
+POST /customer/_bulk?pretty
 {"index":{"_id":"1"}}
 {"name": "John Doe" }
 {"index":{"_id":"2"}}
 {"name": "Jane Doe" }
-'
+
+
+POST /customer/_bulk?pretty
+{"update":{"_id":"1"}}
+{"doc": { "name": "John Doe becomes Jane Doe" } }
+{"delete":{"_id":"2"}}      //删除后面不需要跟source
 ```
 
 # 批量插入数据
@@ -648,7 +656,7 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
 '
 ```
 
-下面的例子返回address中包含"mill"或者"lane"的账户,相当于SELECT * FROM bank WHERE address LIKE '%mill%' OR address LIKE '%lane%'：
+下面的例子返回address中包含"mill"或者"lane"的账户：
 ```
 curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
 {
@@ -656,7 +664,33 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
 }
 '
 ```
+区别"match"：返回包含"mill lane"短语的账户:
+```
+GET / bank / _search
+{
+  “query”：{“match_phrase”：{“address”：“mill lane”}}
+}
+```
 
+_source返回指定字段
+```
+GET bank/_search
+{
+  "query": {
+    "match": {
+      "state": "OK"
+    }
+  },
+  "sort": 
+    {
+      "age": {
+        "order": "desc"
+      }
+    },
+    "_source": ["account_number","balance"]
+  
+}
+```
 bool查询允许我们使用布尔逻辑将较小的查询组合成较大的查询
 下面的例子将两个match查询组合在一起，返回address中包含"mill"和"lane"的账户,相当于SELECT * FROM bank WHERE address LIKE '%mill%lane%'：
 ```
@@ -1165,8 +1199,25 @@ GET /my_index/posts/_search
 ]
 ```
 
+# 索引别名和零停机
+```
+PUT /my_index_v1 
+PUT /my_index_v1/_alias/my_index   # 设置别名 my_index 指向 my_index_v1 
+ 
+GET /*/_alias/my_index             # 检测这个别名指向哪一个索引：
 
+GET /my_index_v1/_alias/*          # 哪些别名指向这个索引：
+#将数据从 my_index_v1 索引到 my_index_v2,一旦我们确定文档已经被正确地重索引了，我们就将别名指向新的索引
+#一个别名可以指向多个索引，所以我们在添加别名到新索引的同时必须从旧的索引中删除它。这个操作需要原子化，这意味着我们需要使用 _aliases 操作：
+POST /_aliases
+{
+    "actions": [
+        { "remove": { "index": "my_index_v1", "alias": "my_index" }},
+        { "add":    { "index": "my_index_v2", "alias": "my_index" }}
+    ]
+}
 
+```
 
 
 
