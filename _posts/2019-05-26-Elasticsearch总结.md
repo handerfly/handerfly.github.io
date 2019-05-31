@@ -1305,8 +1305,8 @@ index.translog.flush_threshold_size:当translog的大小达到此值时会进行
 index.translog.flush_threshold_period:在指定的时间间隔内如果没有进行flush操作，会进行一次强制flush操作。默认是30m。   
 index.translog.interval:多少时间间隔内会检查一次translog，来进行一次flush操作。es会随机的在这个值到这个值的2倍大小之间进行一次操作，默认是5s。   
 
-
-
+[银行账户案例json数据](https://raw.githubusercontent.com/elastic/elasticsearch/master/docs/src/test/resources/accounts.json)
+[案例数据地址json数据](https://github.com/handerfly/handerfly.github.io/blob/master/data/accounts.json)
 [jdk下载地址](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 [elasticsearch下载地址](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html)
 [elasticsearch常用插件](https://www.cnblogs.com/ZJ199012/p/6094083.html)
