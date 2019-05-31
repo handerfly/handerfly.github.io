@@ -79,6 +79,9 @@ curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.
 tar -xvf elasticsearch-7.1.0-linux-x86_64.tar.gz
 cd elasticsearch-7.1.0/bin
 ./elasticsearch  # ./elasticsearch -d 后台运行
+
+# 检查是否启动
+GET /
 ```
 注意:elasticsearch不能用root运行
 > Exception in thread "main" java.nio.file.AccessDeniedException: /usr/local/elasticsearch-7.1.0/config/jvm.options
@@ -90,6 +93,17 @@ curl -H "Content-Type: application/json" -XPUT  加上-H参数
 
 # 配置
 ```
+# 可以如下：
+path:
+    data: /var/lib/elasticsearch
+    logs: /var/log/elasticsearch
+#也可以如下：
+path.data: /var/lib/elasticsearch
+path.logs: /var/log/elasticsearch
+# 可以使用变量
+node.name:    ${HOSTNAME}
+network.host: ${ES_NETWORK_HOST}
+
 cluster.name: elasticsearch_production
 node.name: elasticsearch_005_data
 
@@ -906,7 +920,7 @@ GET bank/_search
 ```
 下面这个例子展示了我们如何根据年龄段(20-29岁，30-39岁，40-49岁)来分组，然后根据性别分组，最后得到平均账户余额，每个年龄等级，每个性别：
 ```
-curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d'
+GET /bank/_search
 {
   "size": 0,
   "aggs": {
@@ -945,7 +959,6 @@ curl -X GET "localhost:9200/bank/_search" -H 'Content-Type: application/json' -d
     }
   }
 }
-'
 ```
 group_by_make 聚合，它是一个 terms 桶（嵌套在 colors 、 terms 桶内）。这意味着它 会为数据集中的每个唯一组合生成（ color 、 make ）(汽车颜色，制造商案例)元组。
 ```
@@ -1313,8 +1326,7 @@ index.translog.interval:多少时间间隔内会检查一次translog，来进行
 
 [elasticsearch下载地址](https://www.elastic.co/guide/en/elasticsearch/reference/current/getting-started-install.html)   
 
-[elasticsearch常用插件](https://www.cnblogs.com/ZJ199012/p/6094083.html)   
-
+[elasticsearch常用插件](https://www.cnblogs.com/ZJ199012/p/6094083.html)      
 [CentOS 7.X 下安装ElasticSearch-Head插件](https://blog.csdn.net/xzwspy/article/details/78386415)   
 
 
