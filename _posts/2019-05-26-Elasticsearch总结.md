@@ -136,17 +136,37 @@ node.master: true
 # 指定该节点是否存储索引数据，默认为true。
 node.data: false  
 
-# 为了使新加入的节点快速确定master位置，可以将data节点的默认的master发现方式有multicast修改为unicast
-# 设置是否打开多播发现节点，默认是true。
-discovery.zen.ping.multicast.enabled: false
-# 设置集群中master节点的初始列表，可以通过这些节点来自动发现新加入集群的节点
-discovery.zen.ping.unicast.hosts: ["master1", "master2", "master3"]
-discovery.zen.ping.unicast.hosts: ["host1", "host2:port", "host3[portX-portY]"]
+discovery.seed_hosts
+如果要在其他主机上形成包含节点的群集，则必须使用该 discovery.seed_hosts设置提供群集中其他节点的列表，这些节点符合主要条件且可能是实时且可联系的，以便为发现过程设定种子。
+此设置通常应包含群集中所有符合主节点的节点的地址。此设置包含主机数组或逗号分隔的字符串。每个值应采用host:port或的形式host
+（如果未设置，则port 默认为设置transport.profiles.default.port回落 transport.port）。
+请注意，必须将IPv6主机置于括号内。此设置的默认值为127.0.0.1, [::1]。
 
-# 默认值是3秒默认情况下，一个节点会认为，如果master节点在3秒之内没有应答，那么这个节点就是死掉了，而增加这个值，会增加节点等待响应的时间
-discovery.zen.ping.timeout: 3s
-# 设置这个参数来保证集群中的节点可以知道其它N个有master资格的节点。默认为1，官方的推荐值是(N/2)+1，其中N是具有master资格的节点的数量，
-discovery.zen.minimum_master_nodes: 1
+cluster.initial_master_nodes
+当您第一次启动全新的Elasticsearch集群时，会出现一个集群引导步骤，该步骤确定在第一次选举中计票的主要合格节点集。在开发模式下，如果未配置发现设置，则此步骤由节点本身自动执行。
+由于此自动引导本质上是不安全的，因此当您在生产模式下启动全新集群时，必须明确列出符合条件的节点的名称或IP地址，这些节点的投票应在第一次选举中计算。
+使用该cluster.initial_master_nodes设置设置此列表。
+
+discovery.seed_hosts：
+   -  192.168.1.10:9300 
+   -  192.168.1.11
+   -  seeds.mydomain.com 
+cluster.initial_master_nodes： 
+   -  master-node-a 
+   -master-node-b 
+   -master-node-c
+
+
+如果未指定，端口将默认为transport.profiles.default.port和回退 transport.port。
+
+如果主机名解析为多个IP地址，则该节点将尝试发现所有已解析地址的其他节点。
+
+初始主节点应由其标识 node.name，默认为其主机名。确保值cluster.initial_master_nodes与node.name 确切匹配。
+如果使用完全限定的域名（例如 master-node-a.example.com节点名称），则必须在此列表中使用完全限定名称; 
+相反，如果node.name是一个没有任何尾随限定符的裸主机名，那么你还必须省略尾随限定符cluster.initial_master_nodes。
+
+查询主节点频率（）
+discovery.find_peers_interval which defaults to 1s.
 ```
 
 
@@ -302,7 +322,29 @@ PUT blog/_settings
 #或者
 curl -X PUT 'localhost:9200/blog/_settings' -H 'Content-type:Application/json' -d '{"index":{"number_of_replicas":2}}'
 ```
+#设置自动添加索引
+```
+PUT _cluster/settings
+{
+    "persistent": {
+        "action.auto_create_index": "twitter,index10,-index1*,+ind*"   #只允许自动创建索引叫twitter，index10，禁止index1*开头的索引(index10被允许，因为在index*模式前面)，以及匹配ind*开头。模式按照给定的顺序进行匹配。
+    }
+}
 
+PUT _cluster/settings
+{
+    "persistent": {
+        "action.auto_create_index": "false"   #完全禁用索引的自动创建。
+    }
+}
+
+PUT _cluster/settings
+{
+    "persistent": {
+        "action.auto_create_index": "true"    #允许使用任何名称自动创建索引。这是默认值。
+    }
+}
+```
 #删除索引
 ```
 DELETE blog
