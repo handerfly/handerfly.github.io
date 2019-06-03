@@ -490,6 +490,23 @@ PUT twitter/_mapping
   }
 }
 ```
+地理位置
+```
+PUT /attractions
+{
+  "mappings": {
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "mylocaltion": {
+          "type": "geo_point"    //地理坐标
+        }
+      }
+    }
+}
+```
+
 修改字段映射
 ```
 PUT my_index 
