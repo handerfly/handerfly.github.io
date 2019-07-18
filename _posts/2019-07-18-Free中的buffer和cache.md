@@ -11,13 +11,14 @@ tags:
     - cache
 ---
 
-free中的buffer和cache:
+# free中的buffer和cache:
 redhat对free输出的解读
 
 两者都是RAM中的数据。简单来说，buffer是即将要被写入磁盘的，而cache是被从磁盘中读出来的。 (free中的buffer和cach它们都是占用内存的)
-
+```
 A buffer is something that has yet to be "written" to disk.
 A cache is something that has been "read" from the disk and stored for later use.
+```
 buffer
 buffer : 作为buffer cache的内存，是块设备的写缓冲区。buffer是根据磁盘的读写设计的，把分散的写操作集中进行，减少磁盘碎片和硬盘的反复寻道，从而提高系统性能。linux有一个守护进程定期清空缓冲内容（即写如磁盘），也可以通过sync命令手动清空缓冲。buffer是由各种进程分配的，被用在如输入队列等方面，一个简单的例子如某个进程要求有多个字段读入，在所有字段被读入完整之前，进程把先前读入的字段放在buffer中保存。
 
@@ -55,7 +56,7 @@ cached Page Cache内存数: 369948 （缓存文件内容信息）
 手动执行sync命令（描述：sync 命令运行 sync 子例程。如果必须停止系统，则运行sync 命令以确保文件系统的完整性。sync 命令将所有未写的系统缓冲区写到磁盘中，包含已修改的 i-node、已延迟的块 I/O 和读写映射文件）
 
 有关/proc/sys/vm/drop_caches的用法在下面进行了说明:
-
+```
 /proc/sys/vm/drop_caches (since Linux 2.6.16)
 Writing to this file causes the kernel to drop clean caches,dentries and inodes from memory, causing that memory to become free.
 To free pagecache, use echo 1 > /proc/sys/vm/drop_caches;
@@ -64,3 +65,4 @@ to free pagecache, dentries and inodes, use echo 3 > /proc/sys/vm/drop_caches.
 Because this is a non-destructive operation and dirty objects are not freeable, the user should run sync first.
 
 echo 3>/proc/sys/vm/drop_caches
+```
