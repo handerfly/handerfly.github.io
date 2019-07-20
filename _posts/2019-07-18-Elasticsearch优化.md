@@ -18,7 +18,7 @@ shard = hash(document_id) % (num_of_primary_shards)
 2.当然在某些情况下，存在Momery Buffer和Filesystem Cache的数据可能会丢失，ES是通过translog的机制来保证数据的可靠性的。其实现机制是接收到请求后，同时也会写入到translog中，当Filesystem cache中的数据写入到磁盘中时，才会清除掉，这个过程叫做flush。
 3.在flush过程中，内存中的缓冲将被清除，内容被写入一个新段，段的fsync将创建一个新的提交点，并将内容刷新到磁盘，旧的translog将被删除并开始一个新的translog。
 4.flush触发的时机是定时触发（默认30分钟）或者translog变得太大（默认为512M）时。
-![1](https://github.com/handerfly/handerfly.github.io/blob/master/images/1081775-20181022174404403-406073981.jpg) 
+![1](https://github.com/handerfly/handerfly.github.io/blob/master/images/1081775-20181022174404403-406073981.jpg?raw=true) 
 
 
 Elasticsearch搜索的过程描述
