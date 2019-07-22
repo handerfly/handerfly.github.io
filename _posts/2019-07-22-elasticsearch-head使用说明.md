@@ -1,14 +1,13 @@
 ---
 layout:     post
 title:      模板
-date:       2019-05-16
+date:       2019-07-22
 author:     BenderFly
 header-img: img/post-bg-coffee.jpeg
 catalog: true
-categories: Django
+categories: Elasticsearch
 tags:
-    - Django
-    - 开发技巧
+    - Elasticsearch
 ---
 
 # elasticsearch-head使用说明
