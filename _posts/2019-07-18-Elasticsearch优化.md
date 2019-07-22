@@ -68,3 +68,25 @@ PUT my_index
 }
 ```
 > 新版默认是disabled无需设置
+
+# 禁用doc_values
+doc_values默认是True
+在使用如下查询的时候会用到Sorting, aggregations, and access to field values in scripts 
+disable doc_value会怎样
+消极影响：sort、aggregate、access the field from script将会无法使用
+积极影响：节省磁盘空间
+```
+PUT my_index
+{
+  "mappings": {
+    "my_type": {
+      "properties": {
+        "mystring": { 
+          "type":       "keyword",
+          "doc_values": false
+        }
+      }
+    }
+  }
+}
+```
