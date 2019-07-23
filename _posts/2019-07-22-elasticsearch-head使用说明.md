@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      模板
+title:      elasticsearch-head使用说明
 date:       2019-07-22
 author:     BenderFly
 header-img: img/post-bg-coffee.jpeg
@@ -30,7 +30,7 @@ elasticsearch-head是一个基于node.js的前端工程，启动elasticsearch-he
 红色，部分的分片可用，表明分片有一部分损坏。此时执行查询部分数据仍然可以查到，遇到这种情况，还是赶快解决比较好
 灰色，未连接到elasticsearch服务
 
-![getopts](https://raw.githubusercontent.com/handerfly/handerfly.github.io/master/img/getopt.png)  
+
 
 [elasticsearch-head下载地址](https://github.com/mobz/elasticsearch-head)
 [参考](https://www.cnblogs.com/xuwenjin/p/8792919.html)
