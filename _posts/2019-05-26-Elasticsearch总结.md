@@ -79,6 +79,7 @@ source /etc/profile
 ```
 
 # elasticsearch安装
+[ELK下载地址](https://www.elastic.co/cn/downloads/)
 ```
 curl -L -O https://artifacts.elastic.co/downloads/elasticsearch/elasticsearch-7.1.0-linux-x86_64.tar.gz
 tar -xvf elasticsearch-7.1.0-linux-x86_64.tar.gz
