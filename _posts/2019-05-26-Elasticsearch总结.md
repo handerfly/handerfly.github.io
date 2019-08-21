@@ -42,7 +42,7 @@ java -version
 [jdk下载地址](https://www.oracle.com/technetwork/java/javase/downloads/index.html)
 > Java SE(Java Platform,Standard Edition)，应该先说这个，因为这个是标准版本。
 > Java EE (Java Platform，Enterprise Edition)，java 的企业版本
-> Java ME(Java Platform，Micro Edition)，java的微型版本。
+> Java ME(Java Platform，Micro Edition)，java的微型版本。     
 步骤二：解压jdk包
 ```
 tar -zxvf dk-8u144-linux-x64.tar.gz
