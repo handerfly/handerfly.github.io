@@ -46,7 +46,16 @@ java -version
 
 步骤二：解压jdk包
 ```
-tar -zxvf dk-8u144-linux-x64.tar.gz
+[root@localhost ~]# mkdir /data
+[root@localhost src]# tar zxf jdk-8u191-linux-x64.tar.gz -C /data/
+[root@localhost jdk]# vim /etc/profile
+在末尾添加以下内容
+export JAVA_HOME=/data/jdk
+export JAVA_BIN=/data/jdk/bin
+export JAVA_LIB=/data/jdk/lib
+export JAVA_JRE=/data/jdk/jre
+[root@localhost jdk]# ln -s /data/jdk/bin/java /usr/bin/
+[root@localhost jdk]# java -version
 ```
 步骤三：编辑/etc/profile文件，配置环境变量
 ```
