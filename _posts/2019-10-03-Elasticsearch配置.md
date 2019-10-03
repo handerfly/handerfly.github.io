@@ -11,15 +11,7 @@ tags:
     - ELK
 ---
 
-ulimit -a 查询所有当前应用的限制
-ulimit -n 65536   打开文件句柄的数量
-修改
-/etc/security/limits.conf
-
-
-
-
-设置JVM选项
+# 设置JVM选项
 heap size配置原则:
 1. 不超过物理内存的50%
 
@@ -29,42 +21,38 @@ heap size [1.9gb], compressed ordinary object pointers [true]
 3. 不超过zero-based compressed oops的阈值(大多数系统26G是安全的)
 >查看是否超过:
 jvm.options开启(新版-Xlog:gc+heap+coops=info)
+```
 -XX:+UnlockDiagnosticVMOptions 
 -XX:+PrintCompressedOopsMode
+```
 >查看日志
+```
 heap address: 0x000000011be00000, size: 27648 MB, zero based Compressed Oops     # 不超过(JDK 7)
 Heap address: 0x0000000080000000, size: 27648 MB, Compressed Oops mode: 32-bit  # 不超过(JDK 8)
 heap address: 0x0000000118400000, size: 28672 MB, Compressed Oops with base: 0x00000001183ff000 # 超过(JDK 7)
-
+```
 设置方法一:
 通过设置环境变量 ES_JAVA_OPTS
 1.注释掉jvm.options中的Xms and Xmx
 2. 
+```
 ES_JAVA_OPTS="-Xms2g -Xmx2g" ./bin/elasticsearch 
 ES_JAVA_OPTS="-Xms4000m -Xmx4000m" ./bin/elasticsearch 
+```
 3. ./bin/elasticsearch
 
 设置方法二:
 jvm.options配置文件中设置Xmx/Xms。
+```
 -Xmx2g      # 独立于版本
 8:-Xmx2g    # =v8
 8-:-Xmx2g   # >= v8
 8-9:-Xmx2g  # v8到v9版本之间
+```
 
 
-
-
-
-
-
-
-
-
-
-
-
-重要的配置:
-# path.data (可定义多个)和path.logs
+# data和logs配置
+path.data (可定义多个)和path.logs
 ```
 path:
   logs: /var/log/elasticsearch
@@ -76,7 +64,7 @@ path:
     - /mnt/elasticsearch_2
     - /mnt/elasticsearch_3
 ```
-# 集群名称
+# 集群名称和网络
 cluster.name: logging-prod
 node.name: prod-data-2     # 默认主机名
 network.host: 192.168.1.10  # 默认loopback addresses
