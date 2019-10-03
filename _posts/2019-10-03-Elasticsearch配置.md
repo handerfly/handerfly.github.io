@@ -19,13 +19,13 @@ heap size配置原则:
 heap size [1.9gb], compressed ordinary object pointers [true]
 
 3. 不超过zero-based compressed oops的阈值(大多数系统26G是安全的)
->查看是否超过:
+查看是否超过:
 jvm.options开启(新版-Xlog:gc+heap+coops=info)
 ```
 -XX:+UnlockDiagnosticVMOptions 
 -XX:+PrintCompressedOopsMode
 ```
->查看日志
+查看日志
 ```
 heap address: 0x000000011be00000, size: 27648 MB, zero based Compressed Oops     # 不超过(JDK 7)
 Heap address: 0x0000000080000000, size: 27648 MB, Compressed Oops mode: 32-bit  # 不超过(JDK 8)
@@ -33,7 +33,7 @@ heap address: 0x0000000118400000, size: 28672 MB, Compressed Oops with base: 0x0
 ```
 设置方法一:
 通过设置环境变量 ES_JAVA_OPTS
-1.注释掉jvm.options中的Xms and Xmx
+1.注释掉jvm.options中的Xms and Xmx        
 2. 
 ```
 ES_JAVA_OPTS="-Xms2g -Xmx2g" ./bin/elasticsearch 
@@ -191,7 +191,8 @@ export ES_JAVA_OPTS="$ES_JAVA_OPTS -Djna.tmpdir=<path>"
 ```
 
 # 文件描述符File Descriptorsedit
-1.包安装无需设置,默认65535 
+1.包安装无需设置,默认65535      
+
 2..zip or tar.gz在启动Elasticsearch之前作为root身份设置ulimit -n 65536，或在/etc/security/limits.conf中设置nofile为65536。
 检查设置是否生效:
 ```
@@ -215,7 +216,7 @@ sysctl -p
 # virtual memory
 ```
 ulimit -v unlimited
-``
+```
 或者在/etc/security/limit.conf中将as设置为unlimited来实现。 - address space limit (KB)
 
 # 线程数
