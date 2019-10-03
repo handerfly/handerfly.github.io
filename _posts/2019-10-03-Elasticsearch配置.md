@@ -70,13 +70,22 @@ node.name: prod-data-2     # 默认主机名
 network.host: 192.168.1.10  # 默认loopback addresses
 
 # 集群发现设置
-discovery.seed_hosts设置
+discovery.seed_hosts设置,若discovery.seed_providers则添加
 包含集群中所有符合主机要求的节点(master-eligible)的地址
 ```
 discovery.seed_hosts:
    - 192.168.1.10:9300
    - 192.168.1.11 
    - seeds.mydomain.com 
+```
+discovery.seed_providers: file # 基于文件$ES_PATH_CONF/unicast_hosts.txt(可动态设置,无需重启es)
+vim $ES_PATH_CONF/unicast_hosts.txt 每行一个host
+```
+10.10.10.5
+10.10.10.6:9305
+10.10.10.5:10005
+# an IPv6 address
+[2001:0db8:85a3:0000:0000:8a2e:0370:7334]:9301
 ```
 cluster.initial_master_nodes设置
 第一次启动一个全新的集群时必须配置
