@@ -54,20 +54,12 @@ jvm.options配置文件中设置Xmx/Xms。
 
 
 
-文件描述符
-在启动Elasticsearch之前作为root身份设置ulimit -n 65536，或在/etc/security/limits.conf中设置nofile为65536。
-检查设置是否生效:
-GET _nodes/stats/process?filter_path=**.max_file_descriptors
 
 
-虚拟内存
-sysctl -w vm.max_map_count=262144
-sysctl -p 
-要永久设置此值，请更新在/etc/sysctl.conf中的vm.max_map_count设置
 
 
-线程数
-ulimit -u 4096，或者在/etc/security/limit.conf中将nproc设置为4096来实现。
+
+
 
 
 
@@ -200,3 +192,22 @@ mlockall失败的另一个可能原因是临时目录（通常是/tmp）与noexe
 export ES_JAVA_OPTS="$ES_JAVA_OPTS -Djna.tmpdir=<path>"
 ./bin/elasticsearch
 ```
+
+# 文件描述符File Descriptorsedit
+1.包安装无需设置,默认65535 
+2..zip or tar.gz在启动Elasticsearch之前作为root身份设置ulimit -n 65536，或在/etc/security/limits.conf中设置nofile为65536。
+检查设置是否生效:
+```
+GET _nodes/stats/process?filter_path=**.max_file_descriptors
+```
+
+# 虚拟内存Virtual memoryedit
+```
+sysctl -w vm.max_map_count=262144
+sysctl -p 
+```
+要永久设置此值，请更新在/etc/sysctl.conf中的vm.max_map_count设置
+> rpm包安装无需设置
+
+# 线程数
+ulimit -u 4096，或者在/etc/security/limit.conf中将nproc设置为4096来实现。
