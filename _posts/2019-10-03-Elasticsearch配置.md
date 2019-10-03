@@ -189,7 +189,13 @@ export ES_JAVA_OPTS="$ES_JAVA_OPTS -Djna.tmpdir=<path>"
 GET _nodes/stats/process?filter_path=**.max_file_descriptors
 ```
 
-# 虚拟内存Virtual memoryedit
+# 最大文件大小Max file size
+```
+ullimit -f unlimited
+```
+或者在/etc/security/limit.conf中将fsize设置为4096来实现。
+
+# Maximum map count 
 ```
 sysctl -w vm.max_map_count=262144
 sysctl -p 
@@ -197,5 +203,14 @@ sysctl -p
 要永久设置此值，请更新在/etc/sysctl.conf中的vm.max_map_count设置
 > rpm包安装无需设置
 
+# virtual memory
+```
+ulimit -v unlimited
+``
+或者在/etc/security/limit.conf中将as设置为unlimited来实现。 - address space limit (KB)
+
 # 线程数
-ulimit -u 4096，或者在/etc/security/limit.conf中将nproc设置为4096来实现。
+```
+ulimit -u 4096
+```
+或者在/etc/security/limit.conf中将nproc设置为4096来实现。
