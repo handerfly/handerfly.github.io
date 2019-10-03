@@ -16,8 +16,9 @@ heap size配置原则:
 1. 不超过物理内存的50%
 
 2. 不超过JVM用于压缩对象的指针（compressed oops）的阈值以上; 确切的阈值有所不同，但接近32 GB。日志中查找如下行验证是否超过:
+```
 heap size [1.9gb], compressed ordinary object pointers [true]
-
+```
 3. 不超过zero-based compressed oops的阈值(大多数系统26G是安全的)
 查看是否超过:
 jvm.options开启(新版-Xlog:gc+heap+coops=info)
@@ -65,21 +66,21 @@ path:
     - /mnt/elasticsearch_3
 ```
 # 集群名称和网络
-cluster.name: logging-prod
-node.name: prod-data-2     # 默认主机名
-network.host: 192.168.1.10  # 默认loopback addresses
+cluster.name: logging-prod    
+node.name: prod-data-2     # 默认主机名    
+network.host: 192.168.1.10  # 默认loopback addresses    
 
 # 集群发现设置
-discovery.seed_hosts设置,若discovery.seed_providers则添加
-包含集群中所有符合主机要求的节点(master-eligible)的地址
+discovery.seed_hosts设置,若discovery.seed_providers则添加    
+包含集群中所有符合主机要求的节点(master-eligible)的地址    
 ```
 discovery.seed_hosts:
    - 192.168.1.10:9300
    - 192.168.1.11 
    - seeds.mydomain.com 
 ```
-discovery.seed_providers: file # 基于文件$ES_PATH_CONF/unicast_hosts.txt(可动态设置,无需重启es)
-vim $ES_PATH_CONF/unicast_hosts.txt 每行一个host
+discovery.seed_providers: file # 基于文件$ES_PATH_CONF/unicast_hosts.txt(可动态设置,无需重启es)    
+vim $ES_PATH_CONF/unicast_hosts.txt 每行一个host    
 ```
 10.10.10.5
 10.10.10.6:9305
@@ -87,8 +88,8 @@ vim $ES_PATH_CONF/unicast_hosts.txt 每行一个host
 # an IPv6 address
 [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:9301
 ```
-cluster.initial_master_nodes设置
-第一次启动一个全新的集群时必须配置
+cluster.initial_master_nodes设置    
+第一次启动一个全新的集群时必须配置    
 ```
 cluster.initial_master_nodes: 
    - master-node-a
@@ -97,22 +98,23 @@ cluster.initial_master_nodes:
 ```
 
 # JVM heap dump path设置
-作用是当JVM需要在内存不足异常时执行堆转储(heap dump)
-默认在
-1./var/lib/elasticsearch(包安装)
-2.ES根目录下的data(解压安装)
-jvm.options中设置
+作用是当JVM需要在内存不足异常时执行堆转储(heap dump)    
+默认在    
+1./var/lib/elasticsearch(包安装)    
+2.ES根目录下的data(解压安装)  
+```  
+jvm.options中设置    
 -XX:HeapDumpPath=data 
- 
+```
 # 临时目录
-默认ES会使用一些临时文件(在启动时生成)默认在/tmp目录下
-1.包安装默认排除在/tmp定期删除(不必自定义)
-2.解压安装则要设置$ES_TMPDIR环境变量指向临时目录,该目录只有运行ES服务的用户可访问
+默认ES会使用一些临时文件(在启动时生成)默认在/tmp目录下    
+1.包安装默认排除在/tmp定期删除(不必自定义)    
+2.解压安装则要设置$ES_TMPDIR环境变量指向临时目录,该目录只有运行ES服务的用户可访问     
 
 # 系统配置
 1. .zip or .tar.gz 
-ulimit(临时设置)
-/etc/security/limits.conf(永久生效)
+ulimit(临时设置)   
+/etc/security/limits.conf(永久生效)    
 
 2.包安装
 ```
@@ -134,9 +136,9 @@ sudo swapoff -a
 要永久禁用它，你需要编辑/etc/fstab文件，并注释掉任何包含单词swap的行。
 
 方法二:
-配置 swappiness
-Linux系统上的另一个可用选项是确保sysctl值vm.swappiness设置为1，这减少了内核交换的趋势，在正常情况下不应该引起交换，同时仍然允许整个系统在紧急情况下交换。
-修改swappiness的值
+配置 swappiness     
+Linux系统上的另一个可用选项是确保sysctl值vm.swappiness设置为1，这减少了内核交换的趋势，在正常情况下不应该引起交换，同时仍然允许整个系统在紧急情况下交换。      
+修改swappiness的值      
 1）临时设置（重启后失效）
 
 ```
@@ -163,7 +165,7 @@ vm.swappiness = 1
 ```
 
 方法三:
-启用 bootstrap.memory_lock
+启用 bootstrap.memory_lock     
 尝试将进程地址空间锁定到RAM中，以防止任何Elasticsearch内存被交换出去，这可以通过向config/elasticsearch.yml文件中添加这一行来实现：
 ```
 bootstrap.memory_lock: true
@@ -171,12 +173,12 @@ bootstrap.memory_lock: true
 请注意:
 > mlockall might cause the JVM or shell session to exit if it tries to allocate more memory than is available!
 
-检查memory_lock配置是否成功
-GET _nodes?filter_path=**.mlockall
-如果你看到mlockall为false，那么这意味着mlockall请求失败了
+检查memory_lock配置是否成功    
+GET _nodes?filter_path=**.mlockall    
+如果你看到mlockall为false，那么这意味着mlockall请求失败了    
 
 在Linux/Unix系统上，最可能的原因是运行Elasticsearch的用户没有锁内存的权限，这可以被授予如下：
-在启动Elasticsearch之前作为root身份设置
+在启动Elasticsearch之前作为root身份设置    
 ```
 ulimit -l unlimited
 ```
