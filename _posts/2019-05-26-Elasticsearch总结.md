@@ -1402,6 +1402,6 @@ index.translog.interval:多少时间间隔内会检查一次translog，来进行
 
 [elasticsearch常用插件](https://www.cnblogs.com/ZJ199012/p/6094083.html)      
 [CentOS 7.X 下安装ElasticSearch-Head插件](https://blog.csdn.net/xzwspy/article/details/78386415)   
-
+[cerebro下载地址](https://github.com/lmenezes/cerebro/releases)
 
 
