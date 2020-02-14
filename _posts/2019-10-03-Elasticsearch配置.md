@@ -31,7 +31,13 @@ jvm.options开启(新版-Xlog:gc+heap+coops=info)
 heap address: 0x000000011be00000, size: 27648 MB, zero based Compressed Oops     # 不超过(JDK 7)
 Heap address: 0x0000000080000000, size: 27648 MB, Compressed Oops mode: 32-bit  # 不超过(JDK 8)
 heap address: 0x0000000118400000, size: 28672 MB, Compressed Oops with base: 0x00000001183ff000 # 超过(JDK 7)
+
+
+$ JAVA_HOME=`/usr/libexec/java_home -v 1.8` java -Xmx32766m -XX:+PrintFlagsFinal 2> /dev/null | grep UseCompressedOops
+# 如果启用会提示如下信息
+bool UseCompressedOops   := true
 ```
+
 设置方法一:
 通过设置环境变量 ES_JAVA_OPTS
 1.注释掉jvm.options中的Xms and Xmx        
