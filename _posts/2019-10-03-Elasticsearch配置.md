@@ -34,7 +34,7 @@ heap address: 0x0000000118400000, size: 28672 MB, Compressed Oops with base: 0x0
 
 
 $ JAVA_HOME=`/usr/libexec/java_home -v 1.8` java -Xmx32766m -XX:+PrintFlagsFinal 2> /dev/null | grep UseCompressedOops
-# 如果启用会提示如下信息
+#如果启用会提示如下信息
 bool UseCompressedOops   := true
 ```
 
