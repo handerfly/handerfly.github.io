@@ -13,13 +13,13 @@ tags:
 
 # 设置JVM选项
 heap size配置原则:
-1. 不超过物理内存的50%
+1.不超过物理内存的50%
 
-2. 不超过JVM用于压缩对象的指针（compressed oops）的阈值以上; 确切的阈值有所不同，但接近32 GB。日志中查找如下行验证是否超过:
+2.不超过JVM用于压缩对象的指针（compressed oops）的阈值以上; 确切的阈值有所不同，但接近32 GB。日志中查找如下行验证是否超过:
 ```
 heap size [1.9gb], compressed ordinary object pointers [true]
 ```
-3. 不超过zero-based compressed oops的阈值(大多数系统26G是安全的)
+3.不超过zero-based compressed oops的阈值(大多数系统26G是安全的)
 查看是否超过:
 jvm.options开启(新版-Xlog:gc+heap+coops=info)
 ```
