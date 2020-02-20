@@ -11,10 +11,12 @@ tags:
     - Elasticsearch
 ---
 
-更新Cluster API
+# 更新Cluster API
+```
 PUT /_cluster/settings
-
+```
 # 集群基本的分片分配
+```
 cluster.routing.allocation.enable  默认all(允许所有分片分配),可选值primaries,new_primaries,none(禁止所有分片)
 cluster.routing.allocation.node_concurrent_incoming_recoveries 默认2,同时分配到该节点的recoveries 分片数
 cluster.routing.allocation.node_concurrent_outgoing_recoveries 默认2
@@ -22,23 +24,28 @@ cluster.routing.allocation.node_concurrent_recoveries  # 同时设置以上两�
 cluster.routing.allocation.node_initial_primaries_recoveries  默认4
 
 cluster.routing.rebalance.enable   默认all(允许所有分片reblanncing),可选值primaries,replicas,none(禁止所有分片)
-
-#设置awareness
+```
+# 设置awareness
 #数据节点上面设置rack_one rack_two,rack_two down则会把分配都分配给rack_one  
+```
 node.attr.rack_id: rack_one
+```
 #在所有master节点 master-eligible 配置 elasticsearch.yml 
+```
 cluster.routing.allocation.awareness.attributes: rack_id
-
+```
 #node.attr.zone 设置为zone1，则只会分配主分片，知道zone2的节点可用
+```
 cluster.routing.allocation.awareness.attributes: zone
 cluster.routing.allocation.awareness.force.zone.values: zone1,zone2
-
+```
 
 # 排除节点
+```
 include(or)
 require(and)
 exclude(not)
-```
+
 PUT _cluster/settings
 {
   "transient" : {
@@ -125,11 +132,13 @@ PUT test/_settings
 }
 ```
 # 限制node索引的分片数
+```
 index.routing.allocation.total_shards_per_node
+```
 # 限制node的总分片数
+```
 cluster.routing.allocation.total_shards_per_node
-
-
+```
 
 # 开启慢查询日志
 ```
