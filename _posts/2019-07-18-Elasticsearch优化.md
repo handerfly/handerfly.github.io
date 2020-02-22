@@ -28,46 +28,9 @@ Elasticsearch搜索的过程描述
 4.接下来就是 取回阶段，协调节点辨别出哪些文档需要被取回并向相关的分片提交多个 GET 请求。每个分片加载并丰富文档，如果有需要的话，接着返回文档给协调节点。一旦所有的文档都被取回了，协调节点返回结果给客户端。
 ![2](https://github.com/handerfly/handerfly.github.io/blob/master/images/2.jpg?raw=true)
 
-# 关闭_all 
-在Elasticsearch中，_all field维护这一个很大的字符串数组(text类型)。这个字符串是其他字段先经过分词，然后组合在一起形成的。组合方式是以空格为分隔符、无序。
-官网有个例子
-```
-PUT my_index/user/1 
-{
-  "first_name":    "John",
-  "last_name":     "Smith",
-  "date_of_birth": "1970-10-24"
-}
-GET my_index/_search
-{
-  "query": {
-    "match": {
-      "_all": "john smith new york"
-    }
-  }
-}
 
-```
-PUT进去三个field的数据，此时_all维护的字符串数组如下： [ "john", "smith", "1970", "10", "24" ]
-_all field是一个text类型，并且同其他的普通字符串field一样能接受如下参数来修饰：analyzer、term_vectors、index_options、store
-通过如下命令来disable掉_all field
-```
-PUT my_index
-{
-  "mappings": {
-    "type_1": { 
-      "properties": {...}
-    },
-    "type_2": { 
-      "_all": {
-        "enabled": false
-      },
-      "properties": {...}
-    }
-  }
-}
-```
-> 新版默认是disabled无需设置
+
+
 
 # 禁用doc_values
 doc_values默认是True

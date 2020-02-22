@@ -86,6 +86,11 @@ export PATH=$PATH:$JAVA_HOME/bin
 ```
 source /etc/profile
 ```
+# 修改默认的JDK位置
+```
+vim /etc/sysconfig/elasticsearch
+JAVA_HOME=your java path
+```
 
 # elasticsearch安装
 [ELK下载地址](https://www.elastic.co/cn/downloads/)
@@ -106,228 +111,15 @@ chown -R es:es /usr/local/elasticsearch/
 >{"error":"Content-Type header [application/x-www-form-urlencoded] is not supported","status":406}
 curl -H "Content-Type: application/json" -XPUT  加上-H参数
 
-# 配置
-```
-# 可以如下：
-path:
-    data: /var/lib/elasticsearch
-    logs: /var/log/elasticsearch
-#也可以如下：
-path.data: /var/lib/elasticsearch
-path.logs: /var/log/elasticsearch
-# 可以使用变量
-node.name:    ${HOSTNAME}
-network.host: ${ES_NETWORK_HOST}
-
-cluster.name: elasticsearch_production
-node.name: elasticsearch_005_data
-
-# Path to directory where to store the data (separate multiple locations by comma):
-path.data: /path/to/data1,/path/to/data2 
-
-# Path to log files:
-path.logs: /path/to/logs
-
-# Path to where plugins are installed:
-path.plugins: /path/to/plugins
-
-# 最小主节点数
-# 方法1 编辑elasticsearch.yml
-discovery.zen.minimum_master_nodes: 2
-
-# 方法2 命令修改 (优先级更高)
-PUT /_cluster/settings
-{
-    "persistent" : {
-        "discovery.zen.minimum_master_nodes" : 2
-    }
-}
-
-# Elasticsearch集群的脑裂问题：
-# 将master节点与data节点分离
-# 指定该节点是否有资格被选举成为node（注意这里只是设置成有资格， 不代表该node一定就是master），默认是true，es是默认集群中的第一台机器为master，如果这台机挂了就会重新选举master。
-node.master: true 
-
-# 指定该节点是否存储索引数据，默认为true。
-node.data: false  
-
-discovery.seed_hosts
-如果要在其他主机上形成包含节点的群集，则必须使用该 discovery.seed_hosts设置提供群集中其他节点的列表，这些节点符合主要条件且可能是实时且可联系的，以便为发现过程设定种子。
-此设置通常应包含群集中所有符合主节点的节点的地址。此设置包含主机数组或逗号分隔的字符串。每个值应采用host:port或的形式host
-（如果未设置，则port 默认为设置transport.profiles.default.port回落 transport.port）。
-请注意，必须将IPv6主机置于括号内。此设置的默认值为127.0.0.1, [::1]。
-
-cluster.initial_master_nodes
-当您第一次启动全新的Elasticsearch集群时，会出现一个集群引导步骤，该步骤确定在第一次选举中计票的主要合格节点集。在开发模式下，如果未配置发现设置，则此步骤由节点本身自动执行。
-由于此自动引导本质上是不安全的，因此当您在生产模式下启动全新集群时，必须明确列出符合条件的节点的名称或IP地址，这些节点的投票应在第一次选举中计算。
-使用该cluster.initial_master_nodes设置设置此列表。
-
-discovery.seed_hosts：
-   -  192.168.1.10:9300 
-   -  192.168.1.11
-   -  seeds.mydomain.com 
-cluster.initial_master_nodes： 
-   -  master-node-a 
-   -master-node-b 
-   -master-node-c
 
 
-如果未指定，端口将默认为transport.profiles.default.port和回退 transport.port。
-
-如果主机名解析为多个IP地址，则该节点将尝试发现所有已解析地址的其他节点。
-
-初始主节点应由其标识 node.name，默认为其主机名。确保值cluster.initial_master_nodes与node.name 确切匹配。
-如果使用完全限定的域名（例如 master-node-a.example.com节点名称），则必须在此列表中使用完全限定名称; 
-相反，如果node.name是一个没有任何尾随限定符的裸主机名，那么你还必须省略尾随限定符cluster.initial_master_nodes。
-
-查询主节点频率（）
-discovery.find_peers_interval which defaults to 1s.
-```
 
 
-# ES中常用的响应状态码    
-200 OK - 一般表示操作成功      
-404 Not Found - 一般在查询时找不到文档是返回404找不到     
-201 Created - 一般创建文档成功时返回201已经创建    
-409 Conflict - 一般创建文档或者更新文档时失败返回冲突    
+   
 
 
-# The REST API
-
-# cat API
-列出所有可用的 API
-```
-curl -XGET 'http://localhost:9200/_cat/'
-```
-
-要启用表头，添加 ?v 参数即可      
-对任意 API 添加 ?help 参数,显示所有可用指标     
-?h 参数来明确指定显示这些指标，多个指标用逗号隔开     
-?bytes=b  字节显示     
-```
-[han@node1 ~]$curl -XGET 'http://localhost:9200/_cat/health'
-[han@node1 ~]$curl -XGET 'http://localhost:9200/_cat/health?v'
-[han@node1 ~]$ curl -XGET 'http://localhost:9200/_cat/nodes?help'
-id                                 | id,nodeId                                   | unique node id                                                                                      
-pid                                | p                                           | process id                                                                                          
-ip                                 | i                                           | ip address   
-...........
-[han@node1 ~]$curl -XGET 'http://localhost:9200/_cat/nodes?v&h=ip,port,heapPercent,heapMax'
-ip        port heapPercent heapMax
-127.0.0.1 9300          26 990.7mb
-
-[han@node1 ~]$ curl 'localhost:9200/_cat/indices?bytes=b' | sort -rnk8
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100   304  100   304    0     0  13947      0 --:--:-- --:--:-- --:--:-- 14476
-yellow open test2                loCO7Wj9S9m7ZWVp8_FNcQ 5 1 0 0  1415  1415
-yellow open test1                1OTOB-bsSzSd3vPzzkQo_Q 1 1 0 0   283   283
-green  open .kibana_task_manager k-ZXcWc0SceWjfg4tkLrUg 1 0 2 0 13141 13141
-green  open .kibana_1            Uq2RcOz-QPikjfDLXrDEiA 1 0 5 0 19735 19735
-[han@node1 ~]$
-[han@node1 ~]$ curl 'localhost:9200/_cat/indices' | sort -rnk8
-  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
-                                 Dload  Upload   Total   Spent    Left  Speed
-100   312  100   312    0     0  31553      0 --:--:-- --:--:-- --:--:-- 34666
-yellow open test2                loCO7Wj9S9m7ZWVp8_FNcQ 5 1 0 0  1.3kb  1.3kb
-yellow open test1                1OTOB-bsSzSd3vPzzkQo_Q 1 1 0 0   283b   283b
-green  open .kibana_task_manager k-ZXcWc0SceWjfg4tkLrUg 1 0 2 0 12.8kb 12.8kb
-green  open .kibana_1            Uq2RcOz-QPikjfDLXrDEiA 1 0 5 0 19.2kb 19.2kb
-
-```
-
-# 集群状态
-```
-[han@node1 ~]$curl -X GET "localhost:9200/_cluster/health"
-{
-   "cluster_name":          "elasticsearch",
-   "status":                "green", 
-   "timed_out":             false,
-   "number_of_nodes":       1,
-   "number_of_data_nodes":  1,
-   "active_primary_shards": 0,
-   "active_shards":         0,
-   "relocating_shards":     0,
-   "initializing_shards":   0,
-   "unassigned_shards":     0
-}
-```
-status 字段是我们最关心的。    
-status 字段指示着当前集群在总体上是否工作正常。它的三种颜色含义如下：   
-green    
-所有的主分片和副本分片都正常运行。    
-yellow    
-所有的主分片都正常运行，但不是所有的副本分片都正常运行。    
-red    
-有主分片没能正常运行    
 
 
-# 创建索引
-> 在索引建立的时候就已经确定了主分片数，但是副本分片数可以随时修改。
-在新建文档的时候如果指定的索引不存在则会自动创建相应的索引       
-  
-（1）不能超过255个字节     
-（2）索引名不能包含大些字母     
-（3）我们新建的索引，默认分片和副本都是1。     
-#判定索引是否存在
-```
-HEAD blogs
-# 返回
-200 - OK
-404 - Not Found
-
-GET /_cat/indices
-# 关闭test索引
-POST test/_close
-# 重新打开test索引
-POST test/_open
-```   
-# 索引配置
-```
-PUT blog
-{
-    "settings" : {
-        "index" : {
-            "number_of_shards" : 2,
-            "number_of_replicas" : 2
-        }
-    }
-}
-```
-也可以简化为不必在settings部分中明确指定索引部分。
-```
-PUT blog
-{
-    "settings" : {
-        "number_of_shards" : 2,
-        "number_of_replicas" : 2
-    }
-}
-
-curl -XPUT 'localhost:9200/customer?pretty'
-# 或者
-curl -X PUT "localhost:9200/customer" -H 'Content-Type: application/json' -d'
-{
-   "settings" : {
-      "number_of_shards" : 3,
-      "number_of_replicas" : 1
-   }
-}
-'
-```
-
-
-# 查看索引
-```
-GET blog
-# 索引列表
-GET /_cat/indices?v
-curl -X GET "localhost:9200/_cat/indices?v"
-```
-# 索引并查询一个文档 
-```
-curl -X PUT "localhost:9200/blog/user/1?pretty" -H 'Content-Type: application/json' -d'{"name": "John Doe"}'
-```
 # 修改一个索引
 ```
 PUT blog/_settings
@@ -360,112 +152,7 @@ PUT _cluster/settings
     }
 }
 ```
-#删除索引
-```
-DELETE blog
-```
 
-# 索引别名
-（1）创建多个索引
-```
-PUT index1
-PUT index2
-```
-（2）创建index1的别名alias1,此时别名alias1和index1一对一。
-```
-POST _aliases
-{
-  "actions": [
-    {
-      "add": {
-        "index": "index1",
-        "alias": "alias1"
-      }
-    }
-  ]
-}
-```
-（3）添加多个索引的别名,我们是不能对alias1进行写操作，当有多个索引时的别名，不能区分到底操作哪一个索引
-```
-POST _aliases
-{
-  "actions": [
-    {
-      "add": {
-        "indices": ["index2","test"],
-        "alias": "alias1"
-      }
-    }
-  ]
-}
-```
-（4）移除别名
-```
-POST _aliases
-{
-  "actions": [
-    {
-      "remove": {
-        "index": "test",
-        "alias": "alias1"
-      }
-    }
-  ]
-}
-```
-（5）查看别名
-```
-GET alias1
-```
-
-# Typeless APIs
-```
-PUT index
-{
-  "mappings": {
-    "properties": { // 注意没有指定type
-      "@timestamp": {
-        "type": "date"
-      }
-    }
-  }
-}
-
-PUT index/_doc/1 // index, get and delete requests使用_doc代替
-{
-  "@timestamp": "2019-02-20"
-}
-
-POST index/_bulk
-{"index": {"_id": "2"}} //  在 metadata中没有 _type
-{"@timestamp": "2019-03-01"}
-{"update": {"_id": "1"}}
-{"@timestamp": "2019-02-21"}
-
-GET index/_doc/2
-
-GET index/_search // `GET index/{type}/_search` 被弃用
-{
-  "query": {
-    "range": {
-      "@timestamp": {
-        "gte": "2019-01-01"
-      }
-    }
-  }
-}
-
-GET index/_explain/1 // 6.x版本使用 "GET index/{type}/1/_explain" 
-{
-  "query": {
-    "range": {
-      "@timestamp": {
-        "gte": "2019-01-01"
-      }
-    }
-  }
-}
-```
 # 记录添加时间戳timestamp
 添加时间戳可以在索引数据时指定
 ```
