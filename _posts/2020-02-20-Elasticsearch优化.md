@@ -172,3 +172,4 @@ curl -XPUT http://localhost:$ES_PORT/*/_settings?pretty -H 'Content-Type: applic
 ```
 
 [参考](https://www.linuxprobe.com/screen-example.html)
+[cat api](https://blog.csdn.net/asty9000/article/details/100406978)
