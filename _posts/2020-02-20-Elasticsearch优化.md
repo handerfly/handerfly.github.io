@@ -171,5 +171,43 @@ curl -XPUT http://localhost:$ES_PORT/*/_settings?pretty -H 'Content-Type: applic
  "index.search.slowlog.threshold.fetch.debug": "-1",}'
 ```
 
+# full-cluster restart
+关掉节点分片会等待index.unassigned.node_left.delayed_timeout（默认1分钟），然后再replicate到其他节点
+第一步先关掉allocation, 默认all(允许所有分片分配),可选值primaries,new_primaries,none(禁止所有分片)
+```
+PUT _cluster/settings
+{
+  "persistent": {
+    "cluster.routing.allocation.enable": "primaries"
+  }
+}
+```
+第二步 如果失败，多执行几次
+```
+POST _flush/synced
+#or
+POST /_flush
+```
+第三步 关闭所有节点，并执行更新或者其他操作，（rolling restart区别在于只重启该节点，等待加入集群后再启动其他节点）
+第四步 如果有单独的master节点，先启动master节点，查看es日志，务必等待选出master节点之后再启动其他节点
+查看集群信息
+```
+GET _cat/health
+GET _cat/nodes
+```
+第五步 当所有的节点都加入集群，并且所有的主分片都已经恢复，执行回复设置
+```
+PUT _cluster/settings
+{
+  "persistent": {
+    "cluster.routing.allocation.enable": null
+  }
+}
+```
+查看恢复情况
+```
+GET _cat/recovery
+```
+
 [参考](https://www.linuxprobe.com/screen-example.html)
 [cat api](https://blog.csdn.net/asty9000/article/details/100406978)
